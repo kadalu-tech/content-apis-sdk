@@ -30,13 +30,16 @@ class Connection(ConnectionBase):
             self.token = token
 
     def create_region(self, name, address):
+        """ Create a new region """
         return Region.create(self, name, address)
 
     def create_bucket(self, name, region, immutable=False, version=False, lock=False):
+        """ Create a new bucket """
         return Bucket.create(self, name, region, immutable, version, lock)
 
-    # def list_buckets(self):
-    #     return Bucket.list(self)
+    def list_buckets(self):
+        """ Return list of buckets """
+        return Bucket.list_buckets(self)
 
-    # def bucket(self, name):
-    #     return Bucket(self, name)
+    def bucket(self, name=None):
+        return Bucket(self, name)

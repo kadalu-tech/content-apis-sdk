@@ -4,9 +4,9 @@ from content_apis.version import VERSION
 
 
 setup(
-    name="content_apis_sdk",
+    name="kadalu_content_apis",
     version=VERSION,
-    packages=["content_apis_sdk"],
+    packages=["kadalu_content_apis"],
     install_requires=['urllib3'],
     author="Kadalu Technologies Private Limited",
     author_email="packages@kadalu.tech",

@@ -1,16 +1,16 @@
 from content_apis.helpers import response_object_or_error
 
 class Region:
-    def __init__(self, conn, region, address):
+    def __init__(self, conn, name, address):
         self.conn = conn
-        self.region = region
+        self.name = name
 
     @classmethod
-    def create(cls, conn, region, address):
+    def create(cls, conn, name, address):
         resp = conn.http_post(
             f"{conn.url}/api/regions/",
             {
-                "region": region,
+                "name": name,
                 "address": address
             }
         )

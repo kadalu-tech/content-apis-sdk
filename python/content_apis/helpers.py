@@ -1,11 +1,9 @@
 # noqa # pylint: disable=missing-module-docstring
 import json
-
 import urllib3
 
-
 class APIError(Exception):
-    # noqa # pylint: disable=missing-class-docstring
+    """ APIError Exception """
     def __init__(self, resp):
         data = json_from_response(resp)
         self.message = data["error"]
@@ -22,7 +20,8 @@ class ConnectionBase:
         print(self.token, self.user_id, "BaseClass")
 
     def get_headers(self):
-        # noqa # pylint: disable=missing-function-docstring
+        """ Returns token and user-id as headers """
+
         headers = {'Content-Type': 'application/json'}
         if self.token != "":
             headers["Authorization"] = f"Bearer {self.token}"
@@ -33,7 +32,8 @@ class ConnectionBase:
         return headers
 
     def http_post(self, url, data):
-        # noqa # pylint: disable=missing-function-docstring
+        """ Send HTTP Post Request with headers """
+
         http = urllib3.PoolManager()
         encoded_data = json.dumps(data).encode('utf-8')
         resp = http.request(
@@ -45,8 +45,23 @@ class ConnectionBase:
 
         return resp
 
+    def http_put(self, url, data):
+        """ Send HTTP Put Request with headers """
+
+        http = urllib3.PoolManager()
+        encoded_data = json.dumps(data).encode('utf-8')
+        resp = http.request(
+            'PUT',
+            url,
+            body=encoded_data,
+            headers=self.get_headers()
+        )
+
+        return resp
+
     def http_delete(self, url):
-        # noqa # pylint: disable=missing-function-docstring
+        """ Send HTTP Delete Request """
+
         http = urllib3.PoolManager()
         resp = http.request(
             'DELETE',
@@ -57,7 +72,8 @@ class ConnectionBase:
         return resp
 
     def http_get(self, url):
-        # noqa # pylint: disable=missing-function-docstring
+        """ Send HTTP Get request with headers """
+
         http = urllib3.PoolManager()
         resp = http.request(
             'GET',
@@ -102,12 +118,13 @@ def to_object(name, data):
 
 
 def json_from_response(resp):
-    # noqa # pylint: disable=missing-function-docstring
+    """ Wrapper to convert HTTP response into JSON """
     return json.loads(resp.data.decode('utf-8'))
 
 
 def response_object_or_error(name, resp, status_code=200):
-    # noqa # pylint: disable=missing-function-docstring
+    """ Return resp in object or raise APIError Exception if request fails """
+
     if resp.status == status_code:
         if status_code == 204:
             return None
