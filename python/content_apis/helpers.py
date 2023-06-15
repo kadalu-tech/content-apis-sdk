@@ -103,7 +103,10 @@ class Generic:
                 setattr(self, key, val)
 
     def __str__(self):
-        return f'<{self.class_name}({", ".join(self.class_highlights[0:2])},...)>'
+        # Some response may have 'int' values, convert them into 'str'
+        # Example: id, template_id .. etc
+        highlights = [str(item) for item in self.class_highlights]
+        return f'<{self.class_name}({", ".join(highlights[0:2])},...)>'
 
 
 def to_object(name, data):
@@ -119,6 +122,7 @@ def to_object(name, data):
 
 def json_from_response(resp):
     """ Wrapper to convert HTTP response into JSON """
+    print(resp.data)
     return json.loads(resp.data.decode('utf-8'))
 
 

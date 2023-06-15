@@ -1,6 +1,7 @@
 # noqa # pylint: disable=missing-module-docstring
 from content_apis.regions import Region
 from content_apis.buckets import Bucket
+from content_apis.objects import Document
 from content_apis.helpers import ConnectionBase, APIError, json_from_response
 
 class Connection(ConnectionBase):
@@ -33,13 +34,27 @@ class Connection(ConnectionBase):
         """ Create a new region """
         return Region.create(self, name, address)
 
-    def create_bucket(self, name, region, immutable=False, version=False, lock=False):
+    def create_bucket(self, name, region="", immutable=False, version=False, lock=False):
         """ Create a new bucket """
         return Bucket.create(self, name, region, immutable, version, lock)
 
     def list_buckets(self):
         """ Return list of buckets """
+        # Here only one argument, but in definition there are two, learn about this.
         return Bucket.list_buckets(self)
 
     def bucket(self, name=None):
         return Bucket(self, name)
+
+    # Create a default object
+    def create_object(self, path, data, object_type):
+        Document.create(self.conn, "/", path, data, object_type)
+
+    # Update a default object
+    def update_object(self, path=None, data=None, object_type=None):
+        Document.update(self.conn, "/", path, data, object_type)
+
+    # Delete a default object
+    def delete_object(self, path):
+        Document.delete(self.conn, "/", path)
+
