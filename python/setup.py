@@ -1,7 +1,5 @@
 from setuptools import setup
-
 from content_apis.version import VERSION
-
 
 setup(
     name="kadalu_content_apis",

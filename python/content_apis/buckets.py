@@ -3,16 +3,14 @@ from content_apis.objects import Document
 
 class Bucket:
     def __init__(self, conn, name):
+        """ Intialise Bucket """
         self.conn = conn
         self.name = name
 
+    # TODO: Handle Invalid Region Name, when only name is passed.
     @classmethod
     def create(cls, conn, name, region, immutable, version, lock):
-        # TODO: Handle Invalid Region Name, when only name is passed.
-        # (Had removed buckets table / delete from buckets;)
-
-        print("name", name)
-        print("region", region)
+        """ Create bucket """
 
         resp = conn.http_post(
             f"{conn.url}/api/buckets/",
@@ -26,22 +24,29 @@ class Bucket:
         )
         return response_object_or_error("Bucket", resp, 201)
 
+
     @classmethod
     def list_buckets(cls, conn):
+        """ List all buckets """
+
         resp = conn.http_get(
             f"{conn.url}/api/buckets"
         )
         return response_object_or_error("Bucket", resp, 200)
 
+
     def get(self):
+        """ Return a bucket """
+
         resp = self.conn.http_get(
             f"{self.conn.url}/api/buckets/{self.name}"
         )
         return response_object_or_error("Bucket", resp, 200)
 
-    def update(self, name=None, region=None, immutable=None, version=None, lock=None):
 
-        print("name", name, "region", region)
+    def update(self, name=None, region=None, immutable=None, version=None, lock=None):
+        """ Update buckets """
+
         resp = self.conn.http_put(
             f"{self.conn.url}/api/buckets/{self.name}",
             {
@@ -61,8 +66,24 @@ class Bucket:
 
 
     def delete(self):
+        """ Delete buckets """
         resp = self.conn.http_delete(f"{self.conn.url}/api/buckets/{self.name}")
         return response_object_or_error("Bucket", resp, 204)
+
+
+    def create_object(self, path, data, object_type):
+        """ Create object with bucket-name """
+        return Document.create(self.conn, self.name, path, data, object_type)
+
+
+    def list_objects(self):
+        """ List objects with bucket-name """
+        return Document.list(self.conn, self.name)
+
+
+    def object(self, path):
+        """ Return Object/Document instance """
+        return Document(self.conn, self.name, path)
 
 
     # def create_cname(self):
@@ -82,9 +103,3 @@ class Bucket:
 
     # def list_cnames(self):
     #     ...
-
-    def create_object(self, path, data, object_type):
-        Document.create(self.conn, self.name, path, data, object_type)
-
-    def object(self, path):
-        return Document(self.conn, self.name, path)
