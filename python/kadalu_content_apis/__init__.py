@@ -1,8 +1,8 @@
 # noqa # pylint: disable=missing-module-docstring
-from content_apis.regions import Region
-from content_apis.buckets import Bucket
-from content_apis.objects import Document
-from content_apis.helpers import ConnectionBase, APIError, json_from_response
+from kadalu_content_apis.regions import Region
+from kadalu_content_apis.buckets import Bucket
+from kadalu_content_apis.objects import Document
+from kadalu_content_apis.helpers import ConnectionBase, APIError, json_from_response
 
 class Connection(ConnectionBase):
     def __init__(self, url, username=None, password=None, user_id=None, token=None):
@@ -43,15 +43,20 @@ class Connection(ConnectionBase):
         return Bucket.list_buckets(self)
 
 
-    def bucket(self, name=None):
+    def bucket(self, name):
         return Bucket(self, name)
 
 
-    def create_object(self, path, data, object_type):
+    def create_object(self, path, data, object_type, immutable=False, version=False, lock=False):
         """ Create default("/") object """
-        return Document.create(self, "/", path, data, object_type)
+        return Document.create(self, "/", path, data, object_type, immutable, version, lock)
 
 
     def list_objects(self):
         """ List all default("/") objects """
         return Document.list(self, "/")
+
+    def object(self, path):
+        """ Return Object/Document instance """
+        return Document(self, "/", path)
+

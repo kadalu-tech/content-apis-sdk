@@ -1,5 +1,5 @@
-from content_apis.helpers import response_object_or_error
-from content_apis.objects import Document
+from kadalu_content_apis.helpers import response_object_or_error
+from kadalu_content_apis.objects import Document
 
 class Bucket:
     def __init__(self, conn, name):
@@ -71,9 +71,9 @@ class Bucket:
         return response_object_or_error("Bucket", resp, 204)
 
 
-    def create_object(self, path, data, object_type):
+    def create_object(self, path, data, object_type, immutable=False, version=False, lock=False):
         """ Create object with bucket-name """
-        return Document.create(self.conn, self.name, path, data, object_type)
+        return Document.create(self.conn, self.name, path, data, object_type, immutable, version, lock)
 
 
     def list_objects(self):

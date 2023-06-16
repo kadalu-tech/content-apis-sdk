@@ -1,5 +1,5 @@
 from setuptools import setup
-from content_apis.version import VERSION
+from kadalu_content_apis.version import VERSION
 
 setup(
     name="kadalu_content_apis",
@@ -10,7 +10,7 @@ setup(
     author_email="packages@kadalu.tech",
     description="",
     license="GPL-v3",
-    keywords="content apis",
+    keywords="kadalu content apis",
     url="https://github.com/kadalu-tech/content-apis-sdk",
     long_description="""
     Python bindings for Kadalu Content ReST APIs

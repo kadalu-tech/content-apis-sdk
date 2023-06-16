@@ -1,4 +1,4 @@
-from content_apis.helpers import response_object_or_error
+from kadalu_content_apis.helpers import response_object_or_error
 
 class Region:
     def __init__(self, conn, name, address):

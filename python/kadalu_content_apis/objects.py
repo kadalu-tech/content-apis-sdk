@@ -1,4 +1,4 @@
-from content_apis.helpers import response_object_or_error
+from kadalu_content_apis.helpers import response_object_or_error
 
 class Document:
     def __init__(self, conn, bucket_name, path):
@@ -8,7 +8,7 @@ class Document:
         self.path = path
 
     @classmethod
-    def create(cls, conn, bucket_name, path, data, obj_type):
+    def create(cls, conn, bucket_name, path, data, obj_type, immutable, version, lock):
         """ Create object of both default("/") and with bucket-name """
 
         if bucket_name == "/":
@@ -20,7 +20,10 @@ class Document:
             {
                 "path": path,
                 "type": obj_type,
-                "data": data
+                "data": data,
+                "immutable": immutable,
+                "version": version,
+                "lock": lock
             }
         )
         return response_object_or_error("Object", resp, 201)
