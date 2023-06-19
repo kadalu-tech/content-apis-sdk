@@ -17,8 +17,6 @@ class ConnectionBase:
         self.token = ""
         self.user_id = ""
 
-        print(self.token, self.user_id, "BaseClass")
-
     def get_headers(self):
         """ Returns token and user-id as headers """
 
@@ -122,7 +120,6 @@ def to_object(name, data):
 
 def json_from_response(resp):
     """ Wrapper to convert HTTP response into JSON """
-    print(resp.data)
     return json.loads(resp.data.decode('utf-8'))
 
 

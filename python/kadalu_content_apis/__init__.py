@@ -5,7 +5,7 @@ from kadalu_content_apis.objects import Document
 from kadalu_content_apis.helpers import ConnectionBase, APIError, json_from_response
 
 class Connection(ConnectionBase):
-    def __init__(self, url, username=None, password=None, user_id=None, token=None):
+    def __init__(self, url, username=None, email=None, password=None, user_id=None, token=None):
         """Intialise Connection and Login to Kadalu Content API"""
         self.url = url.strip("/")
         super().__init__()
@@ -14,6 +14,19 @@ class Connection(ConnectionBase):
             resp = self.http_post(self.url + "/api/api-keys", {"username": username, "password": password})
 
             # TODO: Send correct error response from API when username/password/etc are wrong
+            # Currently response data seems to be empty.
+            # if resp.status != 201:
+            #     raise APIError(resp)
+
+            resp_json = json_from_response(resp)
+
+            self.user_id = resp_json["user_id"]
+            self.token = resp_json["token"]
+
+        if email is not None and password is not None:
+            resp = self.http_post(self.url + "/api/api-keys", {"email": email, "password": password})
+
+            # TODO: Send correct error response from API when email/password/etc are wrong
             # Currently response data seems to be empty.
             # if resp.status != 201:
             #     raise APIError(resp)

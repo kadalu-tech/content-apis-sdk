@@ -8,7 +8,7 @@ class Document:
         self.path = path
 
     @classmethod
-    def create(cls, conn, bucket_name, path, data, obj_type, immutable, version, lock):
+    def create(cls, conn, bucket_name, path, data, object_type, immutable, version, lock):
         """ Create object of both default("/") and with bucket-name """
 
         if bucket_name == "/":
@@ -19,7 +19,7 @@ class Document:
             url,
             {
                 "path": path,
-                "type": obj_type,
+                "type": object_type,
                 "data": data,
                 "immutable": immutable,
                 "version": version,
@@ -53,7 +53,6 @@ class Document:
             url = f"{self.conn.url}/api/buckets/{self.bucket_name}/objects/{self.path}"
 
         resp = self.conn.http_get(url)
-        print(resp.status)
         return response_object_or_error("Object", resp, 200)
 
 
