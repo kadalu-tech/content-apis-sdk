@@ -287,3 +287,71 @@ def test_delete_object_with_bucket():
     # List of default objects after deletion
     objects = bucket.list_objects()
     assert len(objects) == 0
+
+
+def test_create_template():
+    conn = kadalu_content_apis.Connection(
+        url=URL,
+        user_id=USER_ID,
+        token=TOKEN
+    )
+
+    content = """Hello <b>{{ data["first_name"] }}</b>"""
+    tmpl = conn.create_template("simple-html", content, "html")
+
+    assert len(conn.list_templates()) == 1
+    assert tmpl.name == "simple-html"
+
+
+def test_list_templates():
+    conn = kadalu_content_apis.Connection(
+        url=URL,
+        user_id=USER_ID,
+        token=TOKEN
+    )
+
+    content = """Hello <b>{{ data["last_name"] }}</b>"""
+    tmpl = conn.create_template("simple-html-2", content, "html")
+
+    assert len(conn.list_templates()) == 2
+
+
+def test_get_template():
+    conn = kadalu_content_apis.Connection(
+        url=URL,
+        user_id=USER_ID,
+        token=TOKEN
+    )
+
+    tmpl = conn.template("simple-html")
+    get_data = tmpl.get()
+
+    assert get_data.name == "simple-html"
+    assert get_data.type == "html"
+    assert get_data.output_type == "text"
+
+
+def test_update_template():
+    conn = kadalu_content_apis.Connection(
+        url=URL,
+        user_id=USER_ID,
+        token=TOKEN
+    )
+
+    tmpl = conn.template("simple-html")
+    updated_tmpl = tmpl.update(public=True)
+
+    assert updated_tmpl.public == True
+
+
+def test_delete_template():
+    conn = kadalu_content_apis.Connection(
+        url=URL,
+        user_id=USER_ID,
+        token=TOKEN
+    )
+
+    tmpl = conn.template("simple-html-2")
+    tmpl.delete()
+
+    assert len(conn.list_templates()) == 1

@@ -25,7 +25,7 @@ class ConnectionBase:
             headers["Authorization"] = f"Bearer {self.token}"
 
         if self.user_id != "":
-            headers["User_ID"] = self.user_id
+            headers["USER_ID"] = self.user_id
 
         return headers
 

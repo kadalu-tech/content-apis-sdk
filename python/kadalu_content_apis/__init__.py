@@ -2,6 +2,7 @@
 from kadalu_content_apis.regions import Region
 from kadalu_content_apis.buckets import Bucket
 from kadalu_content_apis.objects import Document
+from kadalu_content_apis.templates import Template
 from kadalu_content_apis.helpers import ConnectionBase, APIError, json_from_response
 
 class Connection(ConnectionBase):
@@ -73,3 +74,14 @@ class Connection(ConnectionBase):
         """ Return Object/Document instance """
         return Document(self, "/", path)
 
+    def create_template(self, name, content, template_type, output_type="text", public=False):
+        """ Create Template """
+        return Template.create(self, name, content, template_type, output_type, public)
+
+    def list_templates(self):
+        """ List all templated """
+        return Template.list_templates(self)
+
+    def template(self, name):
+        """ Return Template instance """
+        return Template(self, name)
