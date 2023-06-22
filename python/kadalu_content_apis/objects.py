@@ -108,4 +108,4 @@ class Document:
         # return response_object_or_error("Object", resp, 200)
         if resp.status != 200:
             raise APIError(resp)
-        return resp.data
+        return str(resp.data, 'utf-8')
