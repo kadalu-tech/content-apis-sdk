@@ -8,7 +8,7 @@ class Document:
         self.path = path
 
     @classmethod
-    def create(cls, conn, bucket_name, path, data, object_type, immutable, version, lock):
+    def create(cls, conn, bucket_name, path, data, object_type, immutable, version, lock, template):
         """ Create object of both default("/") and with bucket-name """
 
         if bucket_name == "/":
@@ -23,7 +23,8 @@ class Document:
                 "data": data,
                 "immutable": immutable,
                 "version": version,
-                "lock": lock
+                "lock": lock,
+                "template": template
             }
         )
         return response_object_or_error("Object", resp, 201)
@@ -57,7 +58,7 @@ class Document:
 
 
     # TODO: Check for response once Object Update API is implemented
-    def update(self, path=None, data=None, object_type=None):
+    def update(self, path=None, data=None, object_type=None, template=None):
         """ Update object of both default("/") and with bucket-name """
 
         if self.bucket_name == "/":
@@ -70,7 +71,8 @@ class Document:
             {
                 "path": path,
                 "data": data,
-                "type": object_type
+                "type": object_type,
+                "template": template
             }
         )
 
