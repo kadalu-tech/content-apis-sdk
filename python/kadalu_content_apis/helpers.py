@@ -2,6 +2,12 @@
 import json
 import urllib3
 
+import json
+import urllib3
+from urllib3.fields import RequestField
+from urllib3.filepost import encode_multipart_formdata
+
+
 class APIError(Exception):
     """ APIError Exception """
     def __init__(self, resp):
@@ -43,6 +49,54 @@ class ConnectionBase:
 
         return resp
 
+<<<<<<< Updated upstream
+=======
+
+    def http_post_upload(self, url, meta, file_name, file_content):
+        """ Send HTTP Post Request by uploading a file """
+
+        http = urllib3.PoolManager()
+
+        fields = {
+            "file": (file_name, file_content),
+        }
+
+        if meta is not None:
+            fields["meta"] = json.dumps(meta)
+
+        encoded_data, multipart_headers = encode_multipart_formdata(fields)
+
+        # TODO: Explore `request` library to simplify sending multipart_formdata
+        # multipart_headers is of the form,
+        # 'multipart/form-data; boundary=a7b8ab6d919b6933490251e1d52f5551'
+        # but we require headers['Content-Type'] to be 'Content-Type': 'multipart/form-data; boundary="a7b8ab6d919b6933490251e1d52f5551"'
+        # hence extract int(boundary) from above string assign to updated headers to take final form as,
+        # {'Content-Type': 'multipart/form-data; boundary="a7b8ab6d919b6933490251e1d52f5551"', 'Authorization': 'Bearer NNN', 'USER_ID': N}
+
+        headers = self.get_headers(file_upload=False)
+
+        # parts = multipart_headers.split(';')
+        # for part in parts:
+        #     if 'boundary' in part:
+        #         boundary = part.split('=')[1].strip()
+        #         break
+
+        boundary = multipart_headers.split("=")[1]
+        multipart_header = f'multipart/form-data; boundary="{boundary}"'
+        headers['Content-Type'] = multipart_header
+
+        # Send the request and get the response
+        resp = http.request(
+            method="POST",
+            url=url,
+            body=encoded_data,
+            headers=headers
+        )
+
+        return resp
+
+
+>>>>>>> Stashed changes
     def http_put(self, url, data):
         """ Send HTTP Put Request with headers """
 

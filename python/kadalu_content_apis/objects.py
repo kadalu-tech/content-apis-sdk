@@ -7,6 +7,7 @@ class Document:
         self.bucket_name = bucket_name
         self.path = path
 
+
     @classmethod
     def create(cls, conn, bucket_name, path, data, object_type, immutable, version, lock):
         """ Create object of both default("/") and with bucket-name """
@@ -25,6 +26,37 @@ class Document:
                 "version": version,
                 "lock": lock
             }
+        )
+        return response_object_or_error("Object", resp, 201)
+
+
+    @classmethod
+    def upload(cls, conn, bucket_name, file_path, object_type, immutable, version, lock, template):
+        """ Upload object data at file_path """
+
+        file_name = file_path
+        file_content = ""
+
+        if bucket_name == "/":
+            url = f"{conn.url}/api/objects"
+        else:
+            url = f"{conn.url}/api/buckets/{bucket_name}/objects"
+
+        with open(file_path, "r") as file:
+            file_content = file.read()
+
+        meta = {
+                "path": file_path,
+                "type": object_type,
+                "immutable": immutable,
+                "version": version,
+                "lock": lock,
+                "template": template
+        }
+
+        resp = conn.http_post_upload(
+            url,
+            meta, file_name, file_content
         )
         return response_object_or_error("Object", resp, 201)
 

@@ -6,6 +6,7 @@ class Region:
         self.conn = conn
         self.name = name
 
+
     @classmethod
     def create(cls, conn, name, address):
         """ Create region """
