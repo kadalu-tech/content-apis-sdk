@@ -65,6 +65,11 @@ class Connection(ConnectionBase):
         """ Create default("/") object """
         return Document.create(self, "/", path, data, object_type, immutable, version, lock)
 
+    # TODO: Add path to `upload_object`
+    def upload_object(self, file_path, object_type, immutable=False, version=False, lock=False, template=None):
+        """ Create default("/") object """
+        return Document.upload(self, "/", file_path, object_type, immutable, version, lock, template)
+
 
     def list_objects(self):
         """ List all default("/") objects """

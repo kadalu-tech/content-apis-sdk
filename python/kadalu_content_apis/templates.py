@@ -6,6 +6,7 @@ class Template:
         self.conn = conn
         self.name = name
 
+
     # TODO: Handle Invalid Region Name, when only name is passed.
     @classmethod
     def create(cls, conn, name, content, template_type, output_type, public):
