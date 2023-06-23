@@ -49,8 +49,6 @@ class ConnectionBase:
 
         return resp
 
-<<<<<<< Updated upstream
-=======
 
     def http_post_upload(self, url, meta, file_name, file_content):
         """ Send HTTP Post Request by uploading a file """
@@ -96,7 +94,6 @@ class ConnectionBase:
         return resp
 
 
->>>>>>> Stashed changes
     def http_put(self, url, data):
         """ Send HTTP Put Request with headers """
 
