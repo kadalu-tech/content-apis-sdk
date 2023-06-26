@@ -22,6 +22,7 @@ class ConnectionBase:
         """ Returns token and user-id as headers """
 
         headers = {'Content-Type': 'application/json'}
+
         if self.token != "":
             headers["Authorization"] = f"Bearer {self.token}"
 

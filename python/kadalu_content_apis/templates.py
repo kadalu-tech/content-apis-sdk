@@ -27,6 +27,31 @@ class Template:
 
 
     @classmethod
+    def upload(cls, conn, file_path, template_type, name, output_type, public):
+
+        file_content = ""
+        with open(file_path, "r") as file:
+            file_content = file.read()
+
+        # Set name as basename of file_path when name is not passed
+        if name == "":
+            name = os.path.basename(file_path)
+
+        meta = {
+                "name" : name,
+                "type": template_type,
+                "output_type": output_type,
+                "public": public
+        }
+
+        resp = conn.http_post_upload(
+            f"{conn.url}/api/templates",
+            meta, file_path, file_content
+        )
+        return response_object_or_error("Template", resp, 201)
+
+
+    @classmethod
     def list_templates(cls, conn):
         """ List all templates """
 
