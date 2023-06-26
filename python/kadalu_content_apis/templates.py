@@ -12,7 +12,7 @@ class Template:
     def create(cls, conn, name, content, template_type, output_type, public):
         """ Create template """
 
-        resp = conn.http_post(
+        resp = conn.http_post_upload(
             f"{conn.url}/api/templates",
             {
                 "name" : name,

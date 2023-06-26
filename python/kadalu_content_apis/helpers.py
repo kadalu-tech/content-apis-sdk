@@ -1,12 +1,7 @@
 # noqa # pylint: disable=missing-module-docstring
 import json
 import urllib3
-
-import json
-import urllib3
-from urllib3.fields import RequestField
 from urllib3.filepost import encode_multipart_formdata
-
 
 class APIError(Exception):
     """ APIError Exception """
@@ -50,7 +45,7 @@ class ConnectionBase:
         return resp
 
 
-    def http_post_upload(self, url, meta, file_name, file_content):
+    def http_post_upload(self, url, meta, file_name="", file_content=""):
         """ Send HTTP Post Request by uploading a file """
 
         http = urllib3.PoolManager()
@@ -71,13 +66,7 @@ class ConnectionBase:
         # hence extract int(boundary) from above string assign to updated headers to take final form as,
         # {'Content-Type': 'multipart/form-data; boundary="a7b8ab6d919b6933490251e1d52f5551"', 'Authorization': 'Bearer NNN', 'USER_ID': N}
 
-        headers = self.get_headers(file_upload=False)
-
-        # parts = multipart_headers.split(';')
-        # for part in parts:
-        #     if 'boundary' in part:
-        #         boundary = part.split('=')[1].strip()
-        #         break
+        headers = self.get_headers()
 
         boundary = multipart_headers.split("=")[1]
         multipart_header = f'multipart/form-data; boundary="{boundary}"'
@@ -108,6 +97,7 @@ class ConnectionBase:
 
         return resp
 
+
     def http_delete(self, url):
         """ Send HTTP Delete Request """
 
@@ -119,6 +109,7 @@ class ConnectionBase:
         )
 
         return resp
+
 
     def http_get(self, url):
         """ Send HTTP Get request with headers """
@@ -150,6 +141,7 @@ class Generic:
             else:
                 self.class_highlights.append(val)
                 setattr(self, key, val)
+
 
     def __str__(self):
         # Some response may have 'int' values, convert them into 'str'

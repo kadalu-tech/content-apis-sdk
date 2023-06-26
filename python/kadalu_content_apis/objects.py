@@ -1,3 +1,4 @@
+import os
 from kadalu_content_apis.helpers import response_object_or_error
 
 class Document:
@@ -16,7 +17,7 @@ class Document:
             url = f"{conn.url}/api/objects"
         else:
             url = f"{conn.url}/api/buckets/{bucket_name}/objects"
-        resp = conn.http_post(
+        resp = conn.http_post_upload(
             url,
             {
                 "path": path,
@@ -31,10 +32,9 @@ class Document:
 
 
     @classmethod
-    def upload(cls, conn, bucket_name, file_path, object_type, immutable, version, lock, template):
+    def upload(cls, conn, bucket_name, file_path, object_type, path, immutable, version, lock, template):
         """ Upload object data at file_path """
 
-        file_name = file_path
         file_content = ""
 
         if bucket_name == "/":
@@ -45,8 +45,12 @@ class Document:
         with open(file_path, "r") as file:
             file_content = file.read()
 
+        # If path is empty, set filepath as path excluding the relative path
+        if path == "":
+            path = os.path.basename(file_path)
+
         meta = {
-                "path": file_path,
+                "path": path,
                 "type": object_type,
                 "immutable": immutable,
                 "version": version,
@@ -56,7 +60,7 @@ class Document:
 
         resp = conn.http_post_upload(
             url,
-            meta, file_name, file_content
+            meta, file_path, file_content
         )
         return response_object_or_error("Object", resp, 201)
 

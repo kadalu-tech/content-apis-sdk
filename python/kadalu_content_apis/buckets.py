@@ -76,9 +76,9 @@ class Bucket:
         return Document.create(self.conn, self.name, path, data, object_type, immutable, version, lock)
 
 
-    def upload_object(self, file_path, object_type, immutable=False, version=False, lock=False, template=None):
+    def upload_object(self, file_path, object_type, path="", immutable=False, version=False, lock=False, template=None):
         """ Create default("/") object """
-        return Document.upload(self.conn, self.name, file_path, object_type, immutable, version, lock, template)
+        return Document.upload(self.conn, self.name, file_path, object_type, path, immutable, version, lock, template)
 
 
     def list_objects(self):
