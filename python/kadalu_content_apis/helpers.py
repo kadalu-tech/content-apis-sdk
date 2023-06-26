@@ -18,12 +18,10 @@ class ConnectionBase:
         self.token = ""
         self.user_id = ""
 
-    def get_headers(self, file_upload=False):
+    def get_headers(self):
         """ Returns token and user-id as headers """
-        if file_upload:
-            headers = {'Content-Type': 'multipart/form-data'}
-        else:
-            headers = {'Content-Type': 'application/json'}
+
+        headers = {'Content-Type': 'application/json'}
 
         if self.token != "":
             headers["Authorization"] = f"Bearer {self.token}"

@@ -86,9 +86,9 @@ class Connection(ConnectionBase):
         return Template.create(self, name, content, template_type, output_type, public)
 
 
-    def upload_template(self, name, file_path, template_type, output_type="text", public=False):
+    def upload_template(self, file_path, template_type, name="", output_type="text", public=False):
         """ Upload Template """
-        return Template.create_by_upload(self, name, file_path, template_type, output_type, public)
+        return Template.upload(self, file_path, template_type, name, output_type, public)
 
 
     def list_templates(self):
