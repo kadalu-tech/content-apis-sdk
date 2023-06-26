@@ -54,6 +54,74 @@ def test_user_id_token_login():
     assert conn.user_id == USER_ID
 
 
+def test_create_template():
+    conn = kadalu_content_apis.Connection(
+        url=URL,
+        user_id=USER_ID,
+        token=TOKEN
+    )
+
+    content = """Hello <b>{{ data["first_name"] }}</b>"""
+    tmpl = conn.create_template("simple-html", content, "html")
+
+    assert len(conn.list_templates()) == 1
+    assert tmpl.name == "simple-html"
+
+
+def test_list_templates():
+    conn = kadalu_content_apis.Connection(
+        url=URL,
+        user_id=USER_ID,
+        token=TOKEN
+    )
+
+    content = """Hello <b>{{ data["last_name"] }}</b>"""
+    tmpl = conn.create_template("simple-html-2", content, "html")
+
+    assert len(conn.list_templates()) == 2
+
+
+def test_get_template():
+    conn = kadalu_content_apis.Connection(
+        url=URL,
+        user_id=USER_ID,
+        token=TOKEN
+    )
+
+    tmpl = conn.template("simple-html")
+    get_data = tmpl.get()
+
+    assert get_data.name == "simple-html"
+    assert get_data.type == "html"
+    assert get_data.output_type == "text"
+
+
+def test_update_template():
+    conn = kadalu_content_apis.Connection(
+        url=URL,
+        user_id=USER_ID,
+        token=TOKEN
+    )
+
+    tmpl = conn.template("simple-html-2")
+    updated_tmpl = tmpl.update(public=True)
+
+    assert updated_tmpl.public == True
+
+
+def test_delete_template():
+    conn = kadalu_content_apis.Connection(
+        url=URL,
+        user_id=USER_ID,
+        token=TOKEN
+    )
+
+    tmpl = conn.template("simple-html-2")
+    tmpl.delete()
+
+    assert len(conn.list_templates()) == 1
+
+
 def test_list_buckets():
     conn = kadalu_content_apis.Connection(
         url=URL,
@@ -73,7 +141,7 @@ def test_create_bucket_without_region():
         token=TOKEN
     )
 
-    bucket = conn.create_bucket("mydocs")
+    bucket = conn.create_bucket("mydocs", template="simple-html")
     assert bucket.name == "/mydocs"
     assert bucket.region == "-"
     assert bucket.immutable == False
@@ -98,7 +166,7 @@ def test_create_bucket_with_region():
         token=TOKEN
     )
 
-    bucket = conn.create_bucket(name="mydocs_in_blr", region="in-blr", immutable=False)
+    bucket = conn.create_bucket(name="mydocs_in_blr", region="in-blr", immutable=False, template="simple-html")
     assert bucket.name == "/mydocs_in_blr"
     assert bucket.region == "in-blr"
     assert bucket.immutable == False
@@ -168,7 +236,7 @@ def test_create_default_object():
         "last_name": "EFG"
     })
 
-    obj = conn.create_object(path="user-abc.json", data=data, object_type="json")
+    obj = conn.create_object(path="user-abc.json", data=data, object_type="json", template="simple-html")
 
     # Default objects will have `root_dir` as `/object-name`
     assert obj.root_dir == "/user-abc.json"
@@ -206,9 +274,9 @@ def test_create_object_with_bucket():
     })
 
     bucket = conn.bucket("mydocs_in_blr")
-    obj = bucket.create_object(path="user-abc2.json", data=data, object_type="json")
+    obj = bucket.create_object(path="user-abc2.json", data=data, object_type="json", template="simple-html")
 
-    # Default objects will have `root_dir` as `-`
+    # Non-Default objects will have `root_dir` as `-`
     assert obj.root_dir == "-"
     assert obj.path == "/user-abc2.json"
     assert obj.type == "json"
@@ -280,7 +348,7 @@ def test_delete_object_with_bucket():
     objects = bucket.list_objects()
     assert len(objects) == 1
 
-    # Lists default object(s)
+    # Delete object with bucket
     obj = bucket.object(path="user-abc2.json")
     obj.delete()
 
@@ -289,72 +357,56 @@ def test_delete_object_with_bucket():
     assert len(objects) == 0
 
 
-def test_create_template():
+def test_get_rendered_with_default_object():
     conn = kadalu_content_apis.Connection(
         url=URL,
         user_id=USER_ID,
         token=TOKEN
     )
 
-    content = """Hello <b>{{ data["first_name"] }}</b>"""
-    tmpl = conn.create_template("simple-html", content, "html")
+    data = json.dumps({
+        "first_name": "ABC",
+        "last_name": "EFG"
+    })
 
-    assert len(conn.list_templates()) == 1
-    assert tmpl.name == "simple-html"
+    obj = conn.create_object(path="user-abc.json", data=data, object_type="json", template="simple-html")
+
+    # Default objects will have `root_dir` as `/object-name`
+    assert obj.root_dir == "/user-abc.json"
+    assert obj.path == "/user-abc.json"
+    assert obj.type == "json"
+
+    obj = conn.object("user-abc.json")
+    rendered_data = obj.get_rendered()
+
+    assert rendered_data == "Hello <b>ABC</b>"
 
 
-def test_list_templates():
+def test_get_rendered_with_bucket():
     conn = kadalu_content_apis.Connection(
         url=URL,
         user_id=USER_ID,
         token=TOKEN
     )
 
-    content = """Hello <b>{{ data["last_name"] }}</b>"""
-    tmpl = conn.create_template("simple-html-2", content, "html")
+    data = json.dumps({
+        "first_name": "ABC",
+        "last_name": "EFG",
+        "middle_name": "IJK"
+    })
 
-    assert len(conn.list_templates()) == 2
+    bucket = conn.bucket("mydocs_in_blr")
+    obj = bucket.create_object(path="user-abc2.json", data=data, object_type="json", template="simple-html")
 
+    # Non-Default objects will have `root_dir` as `-`
+    assert obj.root_dir == "-"
+    assert obj.path == "/user-abc2.json"
+    assert obj.type == "json"
 
-def test_get_template():
-    conn = kadalu_content_apis.Connection(
-        url=URL,
-        user_id=USER_ID,
-        token=TOKEN
-    )
+    obj = bucket.object("user-abc2.json")
+    rendered_data = obj.get_rendered()
 
-    tmpl = conn.template("simple-html")
-    get_data = tmpl.get()
-
-    assert get_data.name == "simple-html"
-    assert get_data.type == "html"
-    assert get_data.output_type == "text"
-
-
-def test_update_template():
-    conn = kadalu_content_apis.Connection(
-        url=URL,
-        user_id=USER_ID,
-        token=TOKEN
-    )
-
-    tmpl = conn.template("simple-html")
-    updated_tmpl = tmpl.update(public=True)
-
-    assert updated_tmpl.public == True
-
-
-def test_delete_template():
-    conn = kadalu_content_apis.Connection(
-        url=URL,
-        user_id=USER_ID,
-        token=TOKEN
-    )
-
-    tmpl = conn.template("simple-html-2")
-    tmpl.delete()
-
-    assert len(conn.list_templates()) == 1
+    assert rendered_data == "Hello <b>ABC</b>"
 
 
 def test_upload_templates_and_objects():

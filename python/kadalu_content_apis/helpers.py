@@ -1,6 +1,7 @@
 # noqa # pylint: disable=missing-module-docstring
 import json
 import urllib3
+from urllib3.filepost import encode_multipart_formdata
 
 class APIError(Exception):
     """ APIError Exception """
@@ -21,6 +22,7 @@ class ConnectionBase:
         """ Returns token and user-id as headers """
 
         headers = {'Content-Type': 'application/json'}
+
         if self.token != "":
             headers["Authorization"] = f"Bearer {self.token}"
 
@@ -43,6 +45,45 @@ class ConnectionBase:
 
         return resp
 
+
+    def http_post_upload(self, url, meta, file_name="", file_content=""):
+        """ Send HTTP Post Request by uploading a file """
+
+        http = urllib3.PoolManager()
+
+        fields = {
+            "file": (file_name, file_content),
+        }
+
+        if meta is not None:
+            fields["meta"] = json.dumps(meta)
+
+        encoded_data, multipart_headers = encode_multipart_formdata(fields)
+
+        # TODO: Explore `request` library to simplify sending multipart_formdata
+        # multipart_headers is of the form,
+        # 'multipart/form-data; boundary=a7b8ab6d919b6933490251e1d52f5551'
+        # but we require headers['Content-Type'] to be 'Content-Type': 'multipart/form-data; boundary="a7b8ab6d919b6933490251e1d52f5551"'
+        # hence extract int(boundary) from above string assign to updated headers to take final form as,
+        # {'Content-Type': 'multipart/form-data; boundary="a7b8ab6d919b6933490251e1d52f5551"', 'Authorization': 'Bearer NNN', 'USER_ID': N}
+
+        headers = self.get_headers()
+
+        boundary = multipart_headers.split("=")[1]
+        multipart_header = f'multipart/form-data; boundary="{boundary}"'
+        headers['Content-Type'] = multipart_header
+
+        # Send the request and get the response
+        resp = http.request(
+            method="POST",
+            url=url,
+            body=encoded_data,
+            headers=headers
+        )
+
+        return resp
+
+
     def http_put(self, url, data):
         """ Send HTTP Put Request with headers """
 
@@ -57,6 +98,7 @@ class ConnectionBase:
 
         return resp
 
+
     def http_delete(self, url):
         """ Send HTTP Delete Request """
 
@@ -68,6 +110,7 @@ class ConnectionBase:
         )
 
         return resp
+
 
     def http_get(self, url):
         """ Send HTTP Get request with headers """
@@ -99,6 +142,7 @@ class Generic:
             else:
                 self.class_highlights.append(val)
                 setattr(self, key, val)
+
 
     def __str__(self):
         # Some response may have 'int' values, convert them into 'str'
