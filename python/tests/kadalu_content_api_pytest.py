@@ -355,3 +355,28 @@ def test_delete_template():
     tmpl.delete()
 
     assert len(conn.list_templates()) == 1
+
+
+def test_upload_templates_and_objects():
+    conn = kadalu_content_apis.Connection(
+        url=URL,
+        user_id=USER_ID,
+        token=TOKEN
+    )
+
+    template_file_path = "extra/templates.html"
+    tmpl = conn.upload_template(file_path=template_file_path, template_type="html", name="simple-html-upload")
+
+    tmpl = conn.template("simple-html-upload")
+    get_template_data = tmpl.get()
+
+    assert get_template_data.name == "simple-html-upload"
+
+    object_file_path = "extra/objects.json"
+    bucket = conn.bucket("mydocs_in_blr")
+    obj = bucket.upload_object(file_path=object_file_path, object_type="json", template="simple-html-upload", path="user-abc-upload.json")
+
+    obj = bucket.object("user-abc-upload.json")
+    rendered_data = obj.get_rendered()
+
+    assert rendered_data == "Hello from <b>KADALU TECHNOLOGIES</b>"
