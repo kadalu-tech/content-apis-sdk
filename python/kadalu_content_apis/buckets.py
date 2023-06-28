@@ -10,7 +10,7 @@ class Bucket:
 
     # TODO: Handle Invalid Region Name, when only name is passed.
     @classmethod
-    def create(cls, conn, name, region, immutable, version, lock):
+    def create(cls, conn, name, region, immutable, version, lock, template):
         """ Create bucket """
 
         resp = conn.http_post(
@@ -20,7 +20,8 @@ class Bucket:
                 "region": region,
                 "immutable": immutable,
                 "version": version,
-                "lock": lock
+                "lock": lock,
+                "template": template
             }
         )
         return response_object_or_error("Bucket", resp, 201)
@@ -45,7 +46,7 @@ class Bucket:
         return response_object_or_error("Bucket", resp, 200)
 
 
-    def update(self, name=None, region=None, immutable=None, version=None, lock=None):
+    def update(self, name=None, region=None, immutable=None, version=None, lock=None, template=None):
         """ Update buckets """
 
         resp = self.conn.http_put(
@@ -55,7 +56,8 @@ class Bucket:
                 "region": region,
                 "immutable": immutable,
                 "version": version,
-                "lock": lock
+                "lock": lock,
+                "template": template
             }
         )
 
@@ -72,9 +74,14 @@ class Bucket:
         return response_object_or_error("Bucket", resp, 204)
 
 
-    def create_object(self, path, data, object_type, immutable=False, version=False, lock=False):
+    def create_object(self, path, data, object_type, immutable=False, version=False, lock=False, template=None):
         """ Create object with bucket-name """
-        return Document.create(self.conn, self.name, path, data, object_type, immutable, version, lock)
+        return Document.create(self.conn, self.name, path, data, object_type, immutable, version, lock, template)
+
+
+    def upload_object(self, file_path, object_type, path="", immutable=False, version=False, lock=False, template=None):
+        """ Create default("/") object """
+        return Document.upload(self.conn, self.name, file_path, object_type, path, immutable, version, lock, template)
 
 
     def list_objects(self):

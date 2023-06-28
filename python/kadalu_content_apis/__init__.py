@@ -47,9 +47,9 @@ class Connection(ConnectionBase):
         return Region.create(self, name, address)
 
 
-    def create_bucket(self, name, region="", immutable=False, version=False, lock=False):
+    def create_bucket(self, name, region="", immutable=False, version=False, lock=False, template=None):
         """ Create a new bucket """
-        return Bucket.create(self, name, region, immutable, version, lock)
+        return Bucket.create(self, name, region, immutable, version, lock, template)
 
 
     def list_buckets(self):
@@ -61,26 +61,40 @@ class Connection(ConnectionBase):
         return Bucket(self, name)
 
 
-    def create_object(self, path, data, object_type, immutable=False, version=False, lock=False):
+    def create_object(self, path, data, object_type, immutable=False, version=False, lock=False, template=None):
         """ Create default("/") object """
-        return Document.create(self, "/", path, data, object_type, immutable, version, lock)
+        return Document.create(self, "/", path, data, object_type, immutable, version, lock, template)
+
+    # TODO: Add path to `upload_object`
+    def upload_object(self, file_path, object_type, path="", immutable=False, version=False, lock=False, template=None):
+        """ Create default("/") object """
+        return Document.upload(self, "/", file_path, object_type, path, immutable, version, lock, template)
 
 
     def list_objects(self):
         """ List all default("/") objects """
         return Document.list(self, "/")
 
+
     def object(self, path):
         """ Return Object/Document instance """
         return Document(self, "/", path)
+
 
     def create_template(self, name, content, template_type, output_type="text", public=False):
         """ Create Template """
         return Template.create(self, name, content, template_type, output_type, public)
 
+
+    def upload_template(self, file_path, template_type, name="", output_type="text", public=False):
+        """ Upload Template """
+        return Template.upload(self, file_path, template_type, name, output_type, public)
+
+
     def list_templates(self):
         """ List all templated """
         return Template.list_templates(self)
+
 
     def template(self, name):
         """ Return Template instance """

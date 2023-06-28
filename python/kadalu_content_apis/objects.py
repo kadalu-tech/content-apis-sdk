@@ -9,15 +9,16 @@ class Document:
         self.bucket_name = bucket_name
         self.path = path
 
+
     @classmethod
-    def create(cls, conn, bucket_name, path, data, object_type, immutable, version, lock):
+    def create(cls, conn, bucket_name, path, data, object_type, immutable, version, lock, template):
         """ Create object of both default("/") and with bucket-name """
 
         if bucket_name == "/":
             url = f"{conn.url}/api/objects"
         else:
             url = f"{conn.url}/api/buckets/{bucket_name}/objects"
-        resp = conn.http_post(
+        resp = conn.http_post_upload(
             url,
             {
                 "path": path,
@@ -25,8 +26,43 @@ class Document:
                 "data": data,
                 "immutable": immutable,
                 "version": version,
-                "lock": lock
+                "lock": lock,
+                "template": template
             }
+        )
+        return response_object_or_error("Object", resp, 201)
+
+
+    @classmethod
+    def upload(cls, conn, bucket_name, file_path, object_type, path, immutable, version, lock, template):
+        """ Upload object data at file_path """
+
+        file_content = ""
+
+        if bucket_name == "/":
+            url = f"{conn.url}/api/objects"
+        else:
+            url = f"{conn.url}/api/buckets/{bucket_name}/objects"
+
+        with open(file_path, "r") as file:
+            file_content = file.read()
+
+        # If path is empty, set filepath as path excluding the relative path
+        if path == "":
+            path = os.path.basename(file_path)
+
+        meta = {
+                "path": path,
+                "type": object_type,
+                "immutable": immutable,
+                "version": version,
+                "lock": lock,
+                "template": template
+        }
+
+        resp = conn.http_post_upload(
+            url,
+            meta, file_path, file_content
         )
         return response_object_or_error("Object", resp, 201)
 
@@ -59,7 +95,7 @@ class Document:
 
 
     # TODO: Check for response once Object Update API is implemented
-    def update(self, path=None, data=None, object_type=None):
+    def update(self, path=None, data=None, object_type=None, template=None):
         """ Update object of both default("/") and with bucket-name """
 
         if self.bucket_name == "/":
@@ -72,7 +108,8 @@ class Document:
             {
                 "path": path,
                 "data": data,
-                "type": object_type
+                "type": object_type,
+                "template": template
             }
         )
 
@@ -118,7 +155,7 @@ class Document:
 
     def list_shares(self):
         """ List all Shares within a bucket """
-        return Share.list(self.conn, self.name, self.path)
+        return Share.list(self.conn, self.bucket_name, self.path)
 
 
     def share(self, share_id):
