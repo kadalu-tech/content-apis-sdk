@@ -1,3 +1,5 @@
+import os
+from kadalu_content_apis.shares import Share
 from kadalu_content_apis.helpers import response_object_or_error
 
 class Document:
@@ -90,3 +92,35 @@ class Document:
             url = f"{self.conn.url}/api/buckets/{self.bucket_name}/objects/{self.path}"
         resp = self.conn.http_delete(url)
         return response_object_or_error("Object", resp, 204)
+
+
+    def get_rendered(self, template=None):
+        """ Return rendered of both default("/") and with bucket-name """
+
+        if self.bucket_name == "/":
+            url = f"{self.conn.url}/api/content/objects/{self.path}?{template}"
+        else:
+            url = f"{self.conn.url}/api/content/buckets/{self.bucket_name}/objects/{self.path}?{template}"
+
+        resp = self.conn.http_get(url)
+
+        # TODO: Send response in correct way
+        # return response_object_or_error("Object", resp, 200)
+        if resp.status != 200:
+            raise APIError(resp)
+        return str(resp.data, 'utf-8')
+
+
+    def create_share(self, public=False, use_long_url=False, password="", use_token=False, role=""):
+        """ Create Share with bucket name and object path"""
+        return Share.create(self.conn, self.bucket_name, self.path, public, use_long_url, password, use_token, role)
+
+
+    def list_shares(self):
+        """ List all Shares within a bucket """
+        return Share.list(self.conn, self.name, self.path)
+
+
+    def share(self, share_id):
+        """ Return a Share instance """
+        return Share(self.conn, self.bucket_name, self.path, share_id)
