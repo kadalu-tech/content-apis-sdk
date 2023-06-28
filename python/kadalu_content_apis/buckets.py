@@ -1,5 +1,6 @@
 from kadalu_content_apis.helpers import response_object_or_error
 from kadalu_content_apis.objects import Document
+from kadalu_content_apis.shares import Share
 
 class Bucket:
     def __init__(self, conn, name):
@@ -93,19 +94,25 @@ class Bucket:
         return Document(self.conn, self.name, path)
 
 
+    def create_share(self, public=False, use_long_url=False, password="", use_token=False, role=""):
+        """ Create Share with bucket name """
+        return Share.create(self.conn, self.name, "", public, use_long_url, password, use_token, role)
+
+
+    def list_shares(self):
+        """ List all Shares within a bucket """
+        return Share.list(self.conn, self.name, "")
+
+
+    def share(self, share_id):
+        """ Return a Share instance """
+        return Share(self.conn, self.name, "", share_id)
+
+
     # def create_cname(self):
     #     ...
 
-    # def create_share(self):
-    #     ...
-
-    # def share(self):
-    #     ...
-
     # def cname(self):
-    #     ...
-
-    # def list_shares(self):
     #     ...
 
     # def list_cnames(self):
