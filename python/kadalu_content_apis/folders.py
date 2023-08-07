@@ -2,19 +2,19 @@ from kadalu_content_apis.helpers import response_object_or_error
 from kadalu_content_apis.objects import Document
 from kadalu_content_apis.shares import Share
 
-class Bucket:
+class Folder:
     def __init__(self, conn, name):
-        """ Intialise Bucket """
+        """ Intialise folder """
         self.conn = conn
         self.name = name
 
     # TODO: Handle Invalid Region Name, when only name is passed.
     @classmethod
     def create(cls, conn, name, region, immutable, version, lock, template):
-        """ Create bucket """
+        """ Create folder """
 
         resp = conn.http_post(
-            f"{conn.url}/api/buckets/",
+            f"{conn.url}/api/folders/",
             {
                 "name" : name,
                 "region": region,
@@ -24,33 +24,33 @@ class Bucket:
                 "template": template
             }
         )
-        return response_object_or_error("Bucket", resp, 201)
+        return response_object_or_error("folder", resp, 201)
 
 
     @classmethod
-    def list_buckets(cls, conn):
-        """ List all buckets """
+    def list_folders(cls, conn):
+        """ List all folders """
 
         resp = conn.http_get(
-            f"{conn.url}/api/buckets"
+            f"{conn.url}/api/folders"
         )
-        return response_object_or_error("Bucket", resp, 200)
+        return response_object_or_error("folder", resp, 200)
 
 
     def get(self):
-        """ Return a bucket """
+        """ Return a folder """
 
         resp = self.conn.http_get(
-            f"{self.conn.url}/api/buckets/{self.name}"
+            f"{self.conn.url}/api/folders/{self.name}"
         )
-        return response_object_or_error("Bucket", resp, 200)
+        return response_object_or_error("folder", resp, 200)
 
 
     def update(self, name=None, region=None, immutable=None, version=None, lock=None, template=None):
-        """ Update buckets """
+        """ Update folders """
 
         resp = self.conn.http_put(
-            f"{self.conn.url}/api/buckets/{self.name}",
+            f"{self.conn.url}/api/folders/{self.name}",
             {
                 "name": name,
                 "region": region,
@@ -65,17 +65,17 @@ class Bucket:
         if resp.status == 200 and name is not None:
             self.name = name
 
-        return response_object_or_error("Bucket", resp, 200)
+        return response_object_or_error("folder", resp, 200)
 
 
-    def delete(self):
-        """ Delete buckets """
-        resp = self.conn.http_delete(f"{self.conn.url}/api/buckets/{self.name}")
-        return response_object_or_error("Bucket", resp, 204)
+    def delete(self, recursive=""):
+        """ Delete folders """
+        resp = self.conn.http_delete(f"{self.conn.url}/api/folders/{self.name}?recursive={recursive}")
+        return response_object_or_error("folder", resp, 204)
 
 
     def create_object(self, path, data, object_type, immutable=False, version=False, lock=False, template=None):
-        """ Create object with bucket-name """
+        """ Create object with folder-name """
         return Document.create(self.conn, self.name, path, data, object_type, immutable, version, lock, template)
 
 
@@ -85,7 +85,7 @@ class Bucket:
 
 
     def list_objects(self):
-        """ List objects with bucket-name """
+        """ List objects with folder-name """
         return Document.list(self.conn, self.name)
 
 
@@ -95,12 +95,12 @@ class Bucket:
 
 
     def create_share(self, public=False, use_long_url=False, password="", use_token=False, role=""):
-        """ Create Share with bucket name """
+        """ Create Share with folder name """
         return Share.create(self.conn, self.name, "", public, use_long_url, password, use_token, role)
 
 
     def list_shares(self):
-        """ List all Shares within a bucket """
+        """ List all Shares within a folder """
         return Share.list(self.conn, self.name, "")
 
 

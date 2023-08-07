@@ -1,6 +1,6 @@
 # noqa # pylint: disable=missing-module-docstring
 from kadalu_content_apis.regions import Region
-from kadalu_content_apis.buckets import Bucket
+from kadalu_content_apis.folders import Folder
 from kadalu_content_apis.objects import Document
 from kadalu_content_apis.templates import Template
 from kadalu_content_apis.helpers import ConnectionBase, APIError, json_from_response
@@ -47,18 +47,18 @@ class Connection(ConnectionBase):
         return Region.create(self, name, address)
 
 
-    def create_bucket(self, name, region="", immutable=False, version=False, lock=False, template=None):
-        """ Create a new bucket """
-        return Bucket.create(self, name, region, immutable, version, lock, template)
+    def create_folder(self, name, region="", immutable=False, version=False, lock=False, template=None):
+        """ Create a new Folder """
+        return Folder.create(self, name, region, immutable, version, lock, template)
 
 
-    def list_buckets(self):
-        """ Return list of buckets """
-        return Bucket.list_buckets(self)
+    def list_folders(self):
+        """ Return list of Folders """
+        return Folder.list_folders(self)
 
 
-    def bucket(self, name):
-        return Bucket(self, name)
+    def folder(self, name):
+        return Folder(self, name)
 
 
     def create_object(self, path, data, object_type, immutable=False, version=False, lock=False, template=None):
