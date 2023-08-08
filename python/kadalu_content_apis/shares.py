@@ -1,24 +1,24 @@
 from kadalu_content_apis.helpers import response_object_or_error
 
 class Share:
-    def __init__(self, conn, bucket_name, path, share_id):
+    def __init__(self, conn, folder_name, path, share_id):
         """ Intialise Document/Object """
         self.conn = conn
-        self.bucket_name = bucket_name
+        self.folder_name = folder_name
         self.path = path
         self.share_id = share_id
 
 
     @classmethod
-    def create(cls, conn, bucket_name, path, public, use_long_url, password, use_token, role):
+    def create(cls, conn, folder_name, path, public, use_long_url, password, use_token, role):
         """ Create Share Instance """
 
         if path == "":
-            url = f"{conn.url}/api/shares/buckets/{bucket_name}"
+            url = f"{conn.url}/api/shares/folders/{folder_name}"
         else:
-            url = f"{conn.url}/api/shares/buckets/{bucket_name}/objects/{path}"
+            url = f"{conn.url}/api/shares/folders/{folder_name}/objects/{path}"
 
-        if bucket_name == "/" and path != "":
+        if folder_name == "/" and path != "":
             url = f"{conn.url}/api/shares/objects/{path}"
 
         resp = conn.http_post(
@@ -35,15 +35,15 @@ class Share:
 
 
     @classmethod
-    def list(cls, conn, bucket_name, path):
-        """ List share(s) of both default("/") and with bucket-name """
+    def list(cls, conn, folder_name, path):
+        """ List share(s) of both default("/") and with folder-name """
 
         if path == "":
-            url = f"{conn.url}/api/shares/buckets/{bucket_name}"
+            url = f"{conn.url}/api/shares/folders/{folder_name}"
         else:
-            url = f"{conn.url}/api/shares/buckets/{bucket_name}/objects/{path}"
+            url = f"{conn.url}/api/shares/folders/{folder_name}/objects/{path}"
 
-        if bucket_name == "/" and path != "":
+        if folder_name == "/" and path != "":
             url = f"{conn.url}/api/shares/objects/{path}"
 
         resp = conn.http_get(url)
@@ -51,7 +51,7 @@ class Share:
 
 
     def delete(self):
-        """ Delete object of both default("/") and with bucket-name """
+        """ Delete object of both default("/") and with folder-name """
 
         url = f"{self.conn.url}/api/shares/{self.share_id}"
         resp = self.conn.http_delete(url)
