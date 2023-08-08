@@ -68,7 +68,7 @@ class Folder:
         return response_object_or_error("folder", resp, 200)
 
 
-    def delete(self, recursive=""):
+    def delete(self, recursive=False):
         """ Delete folders """
         resp = self.conn.http_delete(f"{self.conn.url}/api/folders/{self.name}?recursive={recursive}")
         return response_object_or_error("folder", resp, 204)

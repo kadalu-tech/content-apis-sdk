@@ -14,7 +14,8 @@ class Document:
     def create(cls, conn, folder_name, path, data, object_type, immutable, version, lock, template):
         """ Create object of both default("/") and with folder-name """
 
-        if folder_name == "/":
+        folder_name = folder_name.lstrip("/")
+        if folder_name == "":
             url = f"{conn.url}/api/objects"
         else:
             url = f"{conn.url}/api/folders/{folder_name}/objects"
@@ -39,7 +40,8 @@ class Document:
 
         file_content = ""
 
-        if folder_name == "/":
+        folder_name = folder_name.lstrip("/")
+        if folder_name == "":
             url = f"{conn.url}/api/objects"
         else:
             url = f"{conn.url}/api/folders/{folder_name}/objects"
@@ -71,7 +73,8 @@ class Document:
     def list(cls, conn, folder_name):
         """ List object(s) of both default("/") and with folder-name """
 
-        if folder_name == "/":
+        folder_name = folder_name.lstrip("/")
+        if folder_name == "":
             url = f"{conn.url}/api/objects"
         else:
             url = f"{conn.url}/api/folders/{folder_name}/objects"
@@ -85,10 +88,11 @@ class Document:
     def get(self):
         """ Return object of both default("/") and with folder-name """
 
-        if self.folder_name == "/":
+        folder_name = self.folder_name.lstrip("/")
+        if folder_name == "":
             url = f"{self.conn.url}/api/objects/{self.path}"
         else:
-            url = f"{self.conn.url}/api/folders/{self.folder_name}/objects/{self.path}"
+            url = f"{self.conn.url}/api/folders/{folder_name}/objects/{self.path}"
 
         resp = self.conn.http_get(url)
         return response_object_or_error("Object", resp, 200)
@@ -98,10 +102,11 @@ class Document:
     def update(self, path=None, data=None, object_type=None, template=None):
         """ Update object of both default("/") and with folder-name """
 
-        if self.folder_name == "/":
+        folder_name = self.folder_name.lstrip("/")
+        if folder_name == "":
             url = f"{self.conn.url}/api/objects"
         else:
-            url = f"{self.conn.url}/api/folders/{self.folder_name}/objects/{self.path}"
+            url = f"{self.conn.url}/api/folders/{folder_name}/objects/{self.path}"
 
         resp = self.conn.http_put(
             url,
@@ -123,10 +128,11 @@ class Document:
     def delete(self):
         """ Delete object of both default("/") and with folder-name """
 
-        if self.folder_name == "/":
+        folder_name = self.folder_name.lstrip("/")
+        if self.folder_name == "":
             url = f"{self.conn.url}/api/objects/{self.path}"
         else:
-            url = f"{self.conn.url}/api/folders/{self.folder_name}/objects/{self.path}"
+            url = f"{self.conn.url}/api/folders/{folder_name}/objects/{self.path}"
         resp = self.conn.http_delete(url)
         return response_object_or_error("Object", resp, 204)
 
@@ -134,10 +140,11 @@ class Document:
     def get_rendered(self, template=""):
         """ Return rendered of both default("/") and with folder-name """
 
-        if self.folder_name == "/":
-            url = f"{self.conn.url}/api/content/objects/{self.path}?template={template}"
+        folder_name = self.folder_name.lstrip("/")
+        if folder_name == "":
+            url = f"{self.conn.url}/api/content/objects/{self.path}"
         else:
-            url = f"{self.conn.url}/api/content/folders/{self.folder_name}/objects/{self.path}?template={template}"
+            url = f"{self.conn.url}/api/content/folders/{folder_name}/objects/{self.path}"
 
         resp = self.conn.http_get(url)
 

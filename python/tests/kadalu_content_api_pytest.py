@@ -62,7 +62,7 @@ def test_create_template():
     )
 
     content = """Hello <b>{{ data["first_name"] }}</b>"""
-    tmpl = conn.create_template("simple-html", content, "html")
+    tmpl = conn.create_template("simple-html", content, template_type="text", output_type="html")
 
     assert len(conn.list_templates()) == 1
     assert tmpl.name == "simple-html"
@@ -76,7 +76,7 @@ def test_list_templates():
     )
 
     content = """Hello <b>{{ data["last_name"] }}</b>"""
-    tmpl = conn.create_template("simple-html-2", content, "html")
+    tmpl = conn.create_template("simple-html-2", content, template_type="text", output_type="html")
 
     assert len(conn.list_templates()) == 2
 
@@ -92,8 +92,8 @@ def test_get_template():
     get_data = tmpl.get()
 
     assert get_data.name == "simple-html"
-    assert get_data.type == "html"
-    assert get_data.output_type == "text"
+    assert get_data.type == "text"
+    assert get_data.output_type == "html"
 
 
 def test_update_template():
@@ -357,78 +357,133 @@ def test_delete_object_with_folder():
     assert len(objects) == 0
 
 
-# def test_get_rendered_with_default_object():
-#     conn = kadalu_content_apis.Connection(
-#         url=URL,
-#         user_id=USER_ID,
-#         token=TOKEN
-#     )
+def test_get_rendered_with_default_object():
+    conn = kadalu_content_apis.Connection(
+        url=URL,
+        user_id=USER_ID,
+        token=TOKEN
+    )
 
-#     data = json.dumps({
-#         "first_name": "ABC",
-#         "last_name": "EFG"
-#     })
+    data = json.dumps({
+        "first_name": "ABC",
+        "last_name": "EFG"
+    })
 
-#     obj = conn.create_object(path="user-abc.json", data=data, object_type="json", template="simple-html")
+    obj = conn.create_object(path="user-abc.json", data=data, object_type="json", template="simple-html")
 
-#     # Default objects will have `root_dir` as `/object-name`
-#     assert obj.root_dir == "/user-abc.json"
-#     assert obj.path == "/user-abc.json"
-#     assert obj.type == "json"
+    # Default objects will have `root_dir` as `/object-name`
+    assert obj.root_dir == "/user-abc.json"
+    assert obj.path == "/user-abc.json"
+    assert obj.type == "json"
 
-#     obj = conn.object("user-abc.json")
-#     rendered_data = obj.get_rendered()
+    obj = conn.object("user-abc.json")
+    rendered_data = obj.get_rendered()
 
-#     assert rendered_data == "Hello <b>ABC</b>"
-
-
-# def test_get_rendered_with_folder():
-#     conn = kadalu_content_apis.Connection(
-#         url=URL,
-#         user_id=USER_ID,
-#         token=TOKEN
-#     )
-
-#     data = json.dumps({
-#         "first_name": "ABC",
-#         "last_name": "EFG",
-#         "middle_name": "IJK"
-#     })
-
-#     folder = conn.folder("mydocs_in_blr")
-#     obj = folder.create_object(path="user-abc2.json", data=data, object_type="json", template="simple-html")
-
-#     # Non-Default objects will have `root_dir` as `-`
-#     assert obj.root_dir == "-"
-#     assert obj.path == "/user-abc2.json"
-#     assert obj.type == "json"
-
-#     obj = folder.object("user-abc2.json")
-#     rendered_data = obj.get_rendered()
-
-#     assert rendered_data == "Hello <b>ABC</b>"
+    assert rendered_data == "Hello <b>ABC</b>"
 
 
-# def test_upload_templates_and_objects():
-#     conn = kadalu_content_apis.Connection(
-#         url=URL,
-#         user_id=USER_ID,
-#         token=TOKEN
-#     )
+def test_get_rendered_with_folder():
+    conn = kadalu_content_apis.Connection(
+        url=URL,
+        user_id=USER_ID,
+        token=TOKEN
+    )
 
-#     template_file_path = "extra/templates.html"
-#     tmpl = conn.upload_template(file_path=template_file_path, template_type="html", name="simple-html-upload")
+    data = json.dumps({
+        "first_name": "ABC",
+        "last_name": "EFG",
+        "middle_name": "IJK"
+    })
 
-#     tmpl = conn.template("simple-html-upload")
-#     get_template_data = tmpl.get()
+    folder = conn.folder("mydocs_in_blr")
+    obj = folder.create_object(path="user-abc2.json", data=data, object_type="json", template="simple-html")
 
-#     assert get_template_data.name == "simple-html-upload"
+    # Non-Default objects will have `root_dir` as `-`
+    assert obj.root_dir == "-"
+    assert obj.path == "/user-abc2.json"
+    assert obj.type == "json"
 
-#     object_file_path = "extra/objects.json"
-#     folder = conn.folder("mydocs_in_blr")
-#     obj = folder.upload_object(file_path=object_file_path, object_type="json", template="simple-html-upload", path="user-abc-upload.json")
+    obj = folder.object("user-abc2.json")
+    rendered_data = obj.get_rendered()
 
-#     obj = folder.object("user-abc-upload.json")
-#     rendered_data = obj.get_rendered()
+    assert rendered_data == "Hello <b>ABC</b>"
 
-#     assert rendered_data == "Hello from <b>KADALU TECHNOLOGIES</b>"
+
+def test_upload_templates_and_objects():
+    conn = kadalu_content_apis.Connection(
+        url=URL,
+        user_id=USER_ID,
+        token=TOKEN
+    )
+
+    template_file_path = "extra/templates.html"
+    tmpl = conn.upload_template(file_path=template_file_path, name="simple-html-upload", template_type="text", output_type="html")
+
+    tmpl = conn.template("simple-html-upload")
+    get_template_data = tmpl.get()
+
+    assert get_template_data.name == "simple-html-upload"
+
+    object_file_path = "extra/objects.json"
+    folder = conn.folder("mydocs_in_blr")
+    obj = folder.upload_object(file_path=object_file_path, object_type="json", template="simple-html-upload", path="user-abc-upload.json")
+
+    obj = folder.object("user-abc-upload.json")
+    rendered_data = obj.get_rendered()
+
+    assert rendered_data == "Hello from <b>KADALU TECHNOLOGIES</b>"
+
+
+def test_folder_share_create():
+    conn = kadalu_content_apis.Connection(
+        url=URL,
+        user_id=USER_ID,
+        token=TOKEN
+    )
+
+    folder = conn.folder("mydocs_in_blr")
+
+    share = folder.create_share(public=True)
+    assert share.public == True
+
+    share = folder.create_share(use_long_url=True)
+    assert share.long_url_id != ""
+
+
+def test_object_share_create():
+    conn = kadalu_content_apis.Connection(
+        url=URL,
+        user_id=USER_ID,
+        token=TOKEN
+    )
+
+    folder = conn.folder("mydocs_in_blr")
+    obj = folder.object(path="user-abc2.json")
+
+    share = obj.create_share(public=True)
+    assert share.public == True
+
+    share = obj.create_share(use_long_url=True)
+    assert share.long_url_id != ""
+
+
+def test_delete_shares():
+
+    conn = kadalu_content_apis.Connection(
+        url=URL,
+        user_id=USER_ID,
+        token=TOKEN
+    )
+
+    folder = conn.folder("mydocs_in_blr")
+    share = folder.create_share(public=True)
+    share_id = share.id
+    share_obj = folder.share(share_id)
+    share_obj.delete()
+
+    folder = conn.folder("mydocs_in_blr")
+    obj = folder.object(path="user-abc2.json")
+    share = obj.create_share(public=True)
+    share_id = share.id
+    share_obj = obj.share(share_id)
+    share_obj.delete()
