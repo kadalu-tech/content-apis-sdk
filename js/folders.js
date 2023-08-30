@@ -7,7 +7,7 @@ export default class Folder {
     }
 
     static async create(conn, name, region, immutable, version, lock, template) {
-        return await conn.httpPost(`${conn.url}/api/folders`, {
+        return await conn.httpPost(`/api/folders`, {
             name: name,
             region: region,
             immutable: immutable,
@@ -18,17 +18,17 @@ export default class Folder {
     }
 
     static async list(conn) {
-        return await conn.httpGet(`${conn.url}/api/folders`)
+        return await conn.httpGet(`/api/folders`)
     }
 
     async get() {
         return await this.conn.httpGet(
-            `${this.conn.url}/api/folders/${this.name}`
+            `/api/folders/${this.name}`
         )
     }
 
     async update(name=null, region=null, immutable=null, version=null, lock=null, template=null) {
-        return await this.conn.httpPut(`${this.conn.url}/api/folders/${this.name}`, {
+        return await this.conn.httpPut(`/api/folders/${this.name}`, {
             name: name,
             region: region,
             immutable: immutable,
@@ -40,11 +40,11 @@ export default class Folder {
 
     async delete() {
         return await this.conn.httpDelete(
-            `${this.conn.url}/api/folders/${this.name}`
+            `/api/folders/${this.name}`
         )
     }
 
-    async createObject(path, data, object_type, immutable=False, version=False, lock=False, template=null) {
+    async createObject(path, data, object_type, immutable=false, version=false, lock=false, template=null) {
         return await Document.create(this.conn, this.name, path, data, object_type, immutable, version, lock, template);
     }
 
@@ -56,5 +56,15 @@ export default class Folder {
         return new Document(this.conn, this.name, path);
     }
 
-    // Shares SDKs
+    async createShare(public=false, use_long_url=false, password="", use_token=false, role="") {
+        return Share.create(this.conn, this.name, "", public, use_long_url, password, use_token, role)
+    }
+
+    async listShares() {
+        return Share.list(this.conn, this.name, "")
+    }
+
+    share(share_id) {
+        return new Share(this.conn, this.name, "", share_id)
+    }
 }

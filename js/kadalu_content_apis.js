@@ -4,6 +4,7 @@ import Region from './regions';
 import Folder from './folders';
 import Document from './objects';
 import fetch from 'node-fetch';
+import Template from './templates';
 
 export default class ContentAPI {
     constructor(url, username=null, email=null, password=null, user_id=null, token=null) {
@@ -207,15 +208,15 @@ export default class ContentAPI {
         return new Folder(this, name);
     }
 
-    createObject(path, data, object_type, immutable = false, version = false, lock = false, template = null) {
+    async createObject(path, data, object_type, immutable = false, version = false, lock = false, template = null) {
         return Document.create(this, "/", path, data, object_type, immutable, version, lock, template);
     }
 
-    uploadObject(filePath, object_type, path = "", immutable = false, version = false, lock = false, template = null) {
+    async uploadObject(filePath, object_type, path = "", immutable = false, version = false, lock = false, template = null) {
         return Document.upload(this, "/", filePath, object_type, path, immutable, version, lock, template);
     }
 
-    listObjects() {
+    async listObjects() {
         return Document.list(this, "/");
     }
 
@@ -223,45 +224,19 @@ export default class ContentAPI {
         return new Document(this, "/", path);
     }
 
-
-
-
-
-
-
-    async listPools(state=false) {
-        return await Pool.list(this, state);
+    async createTemplate(name, content, template_type, output_type="text", public=False) {
+        return Template.create(this, name, content, template_type, output_type, public)
     }
 
-    pool(name) {
-        return new Pool(this, name);
+    async uploadTemplate(file_path, template_type, name="", output_type="text", public=False) {
+        return Template.upload(this, file_path, template_type, name, output_type, public)
     }
 
-    node(name) {
-        return new Node(this, name);
+    async listTemplates() {
+        return Template.list(this)
     }
 
-    async addNode(name, endpoint="") {
-        return await Node.add(this, name, endpoint);
-    }
-
-    async listNodes(state=false) {
-        return await Node.list(this, state);
-    }
-
-    async createPool(name, distribute_groups, opts) {
-        return await Pool.create(this, name, distribute_groups, opts);
-    }
-
-    async createUser(username, password, fullName="") {
-        return await User.create(this, username, password, fullName);
-    }
-
-    async hasUsers() {
-        return await User.hasUsers(this)
-    }
-
-    user(username) {
-        return new User(this, username)
+    template(name) {
+        return new Template(this, name)
     }
 }

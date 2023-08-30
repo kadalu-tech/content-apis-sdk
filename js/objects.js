@@ -9,9 +9,9 @@ export default class Document {
         folder_name = folder_name.replace(/^\//, "");
         let url;
         if (folder_name === "") {
-            url = `${conn.url}/api/objects`;
+            url = `/api/objects`;
         } else {
-            url = `${conn.url}/api/folders/${folder_name}/objects`;
+            url = `/api/folders/${folder_name}/objects`;
         }
         return await conn.httpPost(
             url,
@@ -30,9 +30,9 @@ export default class Document {
         folder_name = folder_name.replace(/^\//, "");
         let url;
         if (folder_name === "") {
-            url = `${conn.url}/api/objects`;
+            url = `/api/objects`;
         } else {
-            url = `${conn.url}/api/folders/${folder_name}/objects`;
+            url = `/api/folders/${folder_name}/objects`;
         }
 
         return await conn.httpGet(url);
@@ -42,9 +42,9 @@ export default class Document {
         const folderName = this.folderName.replace(/^\//, "");
         let url;
         if (folderName === "") {
-            url = `${this.conn.url}/api/objects/${this.path}`;
+            url = `/api/objects/${this.path}`;
         } else {
-            url = `${this.conn.url}/api/folders/${folderName}/objects/${this.path}`;
+            url = `/api/folders/${folderName}/objects/${this.path}`;
         }
 
         return await this.conn.httpGet(url);
@@ -54,9 +54,9 @@ export default class Document {
         const folderName = this.folderName.replace(/^\//, "");
         let url;
         if (folderName === "") {
-            url = `${this.conn.url}/api/objects`;
+            url = `/api/objects`;
         } else {
-            url = `${this.conn.url}/api/folders/${folderName}/objects/${this.path}`;
+            url = `/api/folders/${folderName}/objects/${this.path}`;
         }
 
         const requestData = {
@@ -79,7 +79,22 @@ export default class Document {
 
     async delete() {
         return await this.conn.httpDelete(
-            `${this.conn.url}/api/folders/${this.name}`
+            `/api/folders/${this.name}`
         )
+    }
+
+    // TODO:
+    // Add getRendered() method
+
+    async createShare(public=false, use_long_url=false, password="", use_token=false, role="") {
+        return Share.create(this.conn, this.folder_name, this.path, public, use_long_url, password, use_token, role)
+    }
+
+    async listShares() {
+        return Share.list(this.conn, this.folder_name, this.path)
+    }
+
+    share(share_id) {
+        return new Share(this.conn, this.folder_name, this.path, share_id)
     }
 }

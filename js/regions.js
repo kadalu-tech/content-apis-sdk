@@ -5,7 +5,7 @@ export default class Region {
     }
 
     static async create(conn, name, address) {
-        return await mgr.httpPost('/api/v1/regions', {
+        return await conn.httpPost('/api/regions', {
             name: name, address: address
         })
     }
