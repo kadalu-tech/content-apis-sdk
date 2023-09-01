@@ -7,47 +7,61 @@ import fetch from 'node-fetch';
 import Template from './templates';
 
 export default class ContentAPI {
+
     constructor(url, username=null, email=null, password=null, user_id=null, token=null) {
+
         this.url = url.replace(/^\/|\/$/g, '');
 
-        console.log(username, password, this.url)
+        const instancePromise = (async () => {
 
-        if (username != null && password != null) {
-            try {
-                let resp = this.httpPost('/api/api-keys/', {
-                    username: username,
-                    password: password
-                });
+            console.log(username, password, this.url)
 
-                console.log("response", resp);
+            if (username != null && password != null) {
+                try {
+                    let resp = await this.httpPost('/api/api-keys', {
+                        username: username,
+                        password: password
+                    });
 
-                let resp_json = resp;
-                this.user_id = resp_json["user_id"];
-                this.token = resp_json["token"];
-            } catch (error) {
-                if (error instanceof ContentAPIAuthError) {
-                    console.error("Authentication Error:", error.message);
-                } else {
-                    console.error("ERROR: ", error);
+                    this.user_id = resp["user_id"];
+                    this.token = resp["token"];
+
+
+                } catch (error) {
+                    if (error instanceof ContentAPIAuthError) {
+                        console.error("Authentication Error:", error.message);
+                    } else {
+                        console.error("ERROR: ", error);
+                    }
                 }
             }
-        }
 
-        if (email != null && password != null) {
-            let resp = this.httpPost('/api/api-keys/', {
-                email: email,
-                password: password
-            })
+            if (email != null && password != null) {
+                let resp = this.httpPost('/api/api-keys', {
+                    email: email,
+                    password: password
+                })
 
-            let resp_json = resp
-            this.user_id = resp_json["user_id"]
-            this.token = resp_json["token"]
-        }
+                let resp_json = resp
+                this.user_id = resp_json["user_id"]
+                this.token = resp_json["token"]
+            }
 
-        if (user_id != null && token != null) {
-            this.user_id = user_id
-            this.token = token
-        }
+            if (user_id != null && token != null) {
+                this.user_id = user_id
+                this.token = token
+            }
+
+            // When IIFE is unresolved, returns the Promise itself &
+            // Not the instance. Handle resolution of Promise to get actual
+            // instance 'this' below.
+            return this;
+        })();
+
+        // Wait for the instancePromise to resolve and update the instance properties
+        // instancePromise.then(() => {
+        //     console.log("Updated `this`", this.user_id, this.token);
+        // });
     }
 
     async httpPost(urlPath, body) {
@@ -81,7 +95,6 @@ export default class ContentAPI {
         }
     }
 
-
     async httpGet(urlPath, existsCheck=false) {
         const response = await fetch(
             `${this.url}${urlPath}`,
@@ -99,6 +112,31 @@ export default class ContentAPI {
 
         if (existsCheck) {
             return response.status == 200 ? true : false;
+        }
+
+        const data = await response.json();
+        if (data.error) {
+            throw new Error(data.error);
+        }
+
+        return data;
+    }
+
+    async httpPut(urlPath, body) {
+        const response = await fetch(
+            `${this.url}${urlPath}`,
+            {
+                method: "PUT",
+                headers: {
+                    ...this.authHeaders(),
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(body)
+            }
+        );
+
+        if (response.status == 401 || response.status == 403) {
+            throw new ContentAPIAuthError((await response.json()).error);
         }
 
         const data = await response.json();
@@ -145,13 +183,13 @@ export default class ContentAPI {
     }
 
     authHeaders() {
-        if (this.token != "") {
+        if (this.token != "" && this.token != null) {
             let headers = {
             }
             if (this.token != "" && this.token != undefined) {
                 headers["Authorization"] = `Bearer ${this.token}`
             }
-            if (this.user_id != "" && this.user_id != undefined) {
+            if (this.user_id != "" && this.user_id != undefined && this.user_id != null) {
                 headers["X-USER-ID"] = this.user_id;
             }
 
@@ -208,32 +246,32 @@ export default class ContentAPI {
         return new Folder(this, name);
     }
 
-    async createObject(path, data, object_type, immutable = false, version = false, lock = false, template = null) {
-        return Document.create(this, "/", path, data, object_type, immutable, version, lock, template);
+    async createObject(path, data, object_type, immutable = false, version = false, lock = false, template = "") {
+        return await Document.create(this, "/", path, data, object_type, immutable, version, lock, template);
     }
 
-    async uploadObject(filePath, object_type, path = "", immutable = false, version = false, lock = false, template = null) {
-        return Document.upload(this, "/", filePath, object_type, path, immutable, version, lock, template);
+    async uploadObject(filePath, object_type, path = "", immutable = false, version = false, lock = false, template = "") {
+        return await Document.upload(this, "/", filePath, object_type, path, immutable, version, lock, template);
     }
 
     async listObjects() {
-        return Document.list(this, "/");
+        return await Document.list(this, "/");
     }
 
     object(path) {
         return new Document(this, "/", path);
     }
 
-    async createTemplate(name, content, template_type, output_type="text", public=False) {
-        return Template.create(this, name, content, template_type, output_type, public)
+    async createTemplate(name, content, template_type, output_type="text", isPublic=false) {
+        return await Template.create(this, name, content, template_type, output_type, isPublic)
     }
 
-    async uploadTemplate(file_path, template_type, name="", output_type="text", public=False) {
-        return Template.upload(this, file_path, template_type, name, output_type, public)
+    async uploadTemplate(file_path, template_type, name="", output_type="text", isPublic=false) {
+        return await Template.upload(this, file_path, template_type, name, output_type, isPublic)
     }
 
     async listTemplates() {
-        return Template.list(this)
+        return await Template.list(this)
     }
 
     template(name) {

@@ -1,3 +1,11 @@
+class APIError extends Error {
+    constructor(response) {
+        super(`API Error: ${response.status}`);
+        this.name = 'APIError';
+        this.response = response;
+    }
+}
+
 export default class Document {
     constructor(conn, name, path) {
         this.conn = conn;
@@ -66,14 +74,13 @@ export default class Document {
             template: template
         };
 
-        const resp = await this.conn.httpPut(url, requestData);
+        const resp = await conn.httpPut(url, requestData);
 
         // Update object name so deletion can be done from the same object after updation.
         if (resp.status === 200 && path !== null) {
             this.path = path;
         }
 
-        // Is await required here?
         return resp;
     }
 
@@ -83,11 +90,30 @@ export default class Document {
         )
     }
 
-    // TODO:
-    // Add getRendered() method
+    async getRendered(template = "") {
+        // Remove leading "/" from folder_name
+        const folderName = this.folderName.replace(/^\//, "");
 
-    async createShare(public=false, use_long_url=false, password="", use_token=false, role="") {
-        return Share.create(this.conn, this.folder_name, this.path, public, use_long_url, password, use_token, role)
+        let url;
+
+        if (folderName === "") {
+            url = `${this.conn.url}/api/content/objects/${this.path}`;
+        } else {
+            url = `${this.conn.url}/api/content/folders/${folderName}/objects/${this.path}`;
+        }
+
+        const resp = await this.conn.httpGet(url);
+
+        if (resp.status !== 200) {
+            throw new APIError(resp);
+        }
+
+        // Assuming resp.data is a string in utf-8 encoding
+        return resp.data;
+    }
+
+    async createShare(isPublic=false, use_long_url=false, password="", use_token=false, role="") {
+        return Share.create(this.conn, this.folder_name, this.path, isPublic, use_long_url, password, use_token, role)
     }
 
     async listShares() {

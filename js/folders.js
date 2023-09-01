@@ -27,8 +27,8 @@ export default class Folder {
         )
     }
 
-    async update(name=null, region=null, immutable=null, version=null, lock=null, template=null) {
-        return await this.conn.httpPut(`/api/folders/${this.name}`, {
+    async update(name="", region="", immutable=false, version=false, lock=false, template="") {
+        return await conn.httpPut(`/api/folders/${this.name}`, {
             name: name,
             region: region,
             immutable: immutable,
@@ -44,7 +44,7 @@ export default class Folder {
         )
     }
 
-    async createObject(path, data, object_type, immutable=false, version=false, lock=false, template=null) {
+    async createObject(path, data, object_type, immutable=false, version=false, lock=false, template="") {
         return await Document.create(this.conn, this.name, path, data, object_type, immutable, version, lock, template);
     }
 
@@ -56,8 +56,8 @@ export default class Folder {
         return new Document(this.conn, this.name, path);
     }
 
-    async createShare(public=false, use_long_url=false, password="", use_token=false, role="") {
-        return Share.create(this.conn, this.name, "", public, use_long_url, password, use_token, role)
+    async createShare(isPublic=false, use_long_url=false, password="", use_token=false, role="") {
+        return Share.create(this.conn, this.name, "", isPublic, use_long_url, password, use_token, role)
     }
 
     async listShares() {

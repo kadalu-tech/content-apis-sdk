@@ -6,8 +6,7 @@ export default class Share {
         this.share_id = share_id;
     }
 
-
-    static async create(conn, folder_name, path, public, use_long_url, password, use_token, role) {
+    static async create(conn, folder_name, path, isPublic, use_long_url, password, use_token, role) {
         folder_name = folder_name.replace(/^\//, "");
         let url;
         if (path === "") {
@@ -23,14 +22,13 @@ export default class Share {
         return await conn.httpPost(
             url,
             {
-                public: public,
+                public: isPublic,
                 use_long_url: use_long_url,
                 password: password,
                 use_token: use_token,
                 role: role
             })
     }
-
 
     static async list(conn, folder_name, path) {
         folder_name = folder_name.replace(/^\//, "");
@@ -47,7 +45,6 @@ export default class Share {
 
         return await conn.httpGet(url);
     }
-
 
     async delete() {
         return await this.conn.httpDelete(
