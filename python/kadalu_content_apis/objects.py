@@ -155,9 +155,9 @@ class Document:
         return str(resp.data, 'utf-8')
 
 
-    def create_share(self, public=False, use_long_url=False, password="", use_token=False, role=""):
+    def create_share(self, public=False, use_long_url=False, password="", use_token=False, disable=False, role=""):
         """ Create Share with folder name and object path"""
-        return Share.create(self.conn, self.folder_name, self.path, public, use_long_url, password, use_token, role)
+        return Share.create(self.conn, self.folder_name, self.path, public, use_long_url, password, use_token, disable, role)
 
 
     def list_shares(self):
