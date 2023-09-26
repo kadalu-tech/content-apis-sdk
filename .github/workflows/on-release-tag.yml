@@ -28,5 +28,5 @@ jobs:
       - name: Publish to Pypi
         working-directory: python
         run: |
-          rm -rf dist; VERSION=${{ env.content_apis_version }} make pypi-release;
+          rm -rf dist; VERSION=${{ env.content_apis_version }} python setup.py sdist bdist_wheel;
           TWINE_PASSWORD=${{ secrets.TWINE_PASSWORD }} twine upload --username aravindavk dist/*
