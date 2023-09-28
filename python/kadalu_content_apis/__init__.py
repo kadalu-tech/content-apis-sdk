@@ -42,6 +42,41 @@ class Connection(ConnectionBase):
             self.token = token
 
 
+    @classmethod
+    def from_env_file(cls, env_file_path):
+        """
+        Create the connection object from the given env file.
+
+        Example env file:
+
+        ```
+        URL=https://app.kadalu.tech
+        API_KEY=bc7889..
+        USER_ID=7
+        ```
+
+        Usage:
+
+        ```
+        from kadalu_content_apis import Connection
+
+        conn = Connection.from_env_file("/home/ubuntu/secrets/kca_prod.env")
+        ```
+        """
+        env_vars = {}
+        with open(env_file_path) as env_file:
+            for line in env_file:
+                if line.strip() == "":
+                    continue
+                key, value = line.split("=", 1)
+                env_vars[key] = value
+
+        return Connection(
+            env_vars["URL"],
+            user_id=env_vars["USER_ID"],
+            token=env_vars["API_KEY"]
+        )
+
     def create_region(self, name, address):
         """ Create a new region """
         return Region.create(self, name, address)
