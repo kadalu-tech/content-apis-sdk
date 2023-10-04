@@ -94,9 +94,9 @@ class Folder:
         return Document(self.conn, self.name, path)
 
 
-    def create_share(self, public=False, use_long_url=False, password="", use_token=False, disable=False, role=""):
+    def create_share(self, public=False, use_long_url=False, password="", use_token=False, disable=False, revoke=False, expire=False, role=""):
         """ Create Share with folder name """
-        return Share.create(self.conn, self.name, "", public, use_long_url, password, use_token, disable, role)
+        return Share.create(self.conn, self.name, "", public, use_long_url, password, use_token, disable, revoke, expire, role)
 
 
     def list_shares(self):
