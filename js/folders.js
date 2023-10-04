@@ -56,8 +56,8 @@ export default class Folder {
         return new Document(this.conn, this.name, path);
     }
 
-    async createShare(isPublic=false, use_long_url=false, password="", use_token=false, role="") {
-        return Share.create(this.conn, this.name, "", isPublic, use_long_url, password, use_token, role)
+    async createShare(isPublic=false, use_long_url=false, password="", use_token=false, disable=false, revoke=false, expire=false, role="") {
+        return Share.create(this.conn, this.name, "", isPublic, use_long_url, password, use_token, disable, revoke, expire, role)
     }
 
     async listShares() {

@@ -112,8 +112,8 @@ export default class Document {
         return resp.data;
     }
 
-    async createShare(isPublic=false, use_long_url=false, password="", use_token=false, role="") {
-        return Share.create(this.conn, this.folder_name, this.path, isPublic, use_long_url, password, use_token, role)
+    async createShare(isPublic=false, use_long_url=false, password="", use_token=false, disable=false, revoke=false, expire=false, role="") {
+        return Share.create(this.conn, this.folder_name, this.path, isPublic, use_long_url, password, use_token, disable, revoke, expire, role)
     }
 
     async listShares() {
