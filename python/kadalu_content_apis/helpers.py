@@ -130,15 +130,15 @@ class Generic:
     """
     Generic class to convert dict into class object
     """
-    def __init__(self, name, data):
-        self.class_name = name
+
+    def __init__(self, data):
         self.class_highlights = []
 
         for key, val in data.items():
             if isinstance(val, dict):
-                setattr(self, key, Generic(key, val))
+                setattr(self, key, self.__class__(data=val))
             elif isinstance(val, list):
-                setattr(self, key, to_object(key, val))
+                setattr(self, key, to_object(self.__class__, val))
             else:
                 self.class_highlights.append(val)
                 setattr(self, key, val)
@@ -148,18 +148,18 @@ class Generic:
         # Some response may have 'int' values, convert them into 'str'
         # Example: id, template_id .. etc
         highlights = [str(item) for item in self.class_highlights]
-        return f'<{self.class_name}({", ".join(highlights[0:2])},...)>'
+        return f'<{self.__class__.__name__}({", ".join(highlights[0:2])},...)>'
 
 
-def to_object(name, data):
+def to_object(cls, data):
     # noqa # pylint: disable=missing-function-docstring
     if isinstance(data, list):
         return [
-            (Generic(name, item) if isinstance(item, dict) else item)
+            (cls(data=item) if isinstance(item, dict) else item)
             for item in data
         ]
 
-    return Generic(name, data)
+    return cls(data=data)
 
 
 def json_from_response(resp):
@@ -167,13 +167,13 @@ def json_from_response(resp):
     return json.loads(resp.data.decode('utf-8'))
 
 
-def response_object_or_error(name, resp, status_code=200):
+def response_object_or_error(cls, resp, status_code=200):
     """ Return resp in object or raise APIError Exception if request fails """
 
     if resp.status == status_code:
         if status_code == 204:
             return None
 
-        return to_object(name, json_from_response(resp))
+        return to_object(cls, json_from_response(resp))
 
     raise APIError(resp)

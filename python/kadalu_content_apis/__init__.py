@@ -69,7 +69,7 @@ class Connection(ConnectionBase):
                 if line.strip() == "":
                     continue
                 key, value = line.split("=", 1)
-                env_vars[key] = value
+                env_vars[key.strip()] = value.strip()
 
         return Connection(
             env_vars["URL"],
