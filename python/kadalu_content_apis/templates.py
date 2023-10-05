@@ -1,10 +1,11 @@
-from kadalu_content_apis.helpers import response_object_or_error
+from kadalu_content_apis.helpers import response_object_or_error, Generic
 
-class Template:
-    def __init__(self, conn, name):
+class Template(Generic):
+    def __init__(self, conn=None, name=None, data=None):
         """ Intialise Template """
         self.conn = conn
         self.name = name
+        super().__init__(data)
 
 
     # TODO: Handle Invalid Region Name, when only name is passed.
@@ -23,8 +24,10 @@ class Template:
 
             }
         )
-        return response_object_or_error("Template", resp, 201)
+        outdata = response_object_or_error(Template, resp, 201)
+        outdata.conn = conn
 
+        return outdata
 
     @classmethod
     def upload(cls, conn, file_path, template_type, name, output_type, public):
@@ -48,8 +51,10 @@ class Template:
             f"{conn.url}/api/templates",
             meta, file_path, file_content
         )
-        return response_object_or_error("Template", resp, 201)
+        outdata = response_object_or_error(Template, resp, 201)
+        outdata.conn = conn
 
+        return outdata
 
     @classmethod
     def list_templates(cls, conn):
@@ -58,8 +63,14 @@ class Template:
         resp = conn.http_get(
             f"{conn.url}/api/templates"
         )
-        return response_object_or_error("Template", resp, 200)
+        templates = response_object_or_error(Template, resp, 200)
 
+        def update_data(tmpl):
+            tmpl.conn = conn
+
+            return tmpl
+
+        return list(map(update_data, templates))
 
     def get(self):
         """ Return a Template """
@@ -67,7 +78,10 @@ class Template:
         resp = self.conn.http_get(
             f"{self.conn.url}/api/templates/{self.name}"
         )
-        return response_object_or_error("Template", resp, 200)
+        outdata = response_object_or_error(Template, resp, 200)
+        outdata.conn = self.conn
+
+        return outdata
 
 
     def update(self, name=None, content=None, template_type=None, output_type=None, public=None):
@@ -88,10 +102,13 @@ class Template:
         if resp.status == 200 and name is not None:
             self.name = name
 
-        return response_object_or_error("Template", resp, 200)
+        outdata = response_object_or_error(Template, resp, 200)
+        outdata.conn = self.conn
+
+        return outdata
 
 
     def delete(self):
         """ Delete Template """
         resp = self.conn.http_delete(f"{self.conn.url}/api/templates/{self.name}")
-        return response_object_or_error("Template", resp, 204)
+        return response_object_or_error(Template, resp, 204)
