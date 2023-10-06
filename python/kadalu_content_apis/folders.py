@@ -3,11 +3,15 @@ from kadalu_content_apis.objects import Document
 from kadalu_content_apis.shares import Share
 
 class Folder(Generic):
-    def __init__(self, conn=None, name=None, data=None):
+    def __init__(self, conn=None, name=None, data={}):
         """ Intialise folder """
-        self.conn = conn
-        self.name = name
         super().__init__(data)
+
+        if conn is not None:
+            self.conn = conn
+
+        if name is not None:
+            self.name = name
 
     # TODO: Handle Invalid Region Name, when only name is passed.
     @classmethod
