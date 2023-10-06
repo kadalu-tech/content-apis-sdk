@@ -1,19 +1,22 @@
 from kadalu_content_apis.helpers import response_object_or_error, Generic
 
 class Template(Generic):
-    def __init__(self, conn=None, name=None, data=None):
+    def __init__(self, conn=None, name=None, data={}):
         """ Intialise Template """
-        self.conn = conn
-        self.name = name
         super().__init__(data)
 
+        if conn is not None:
+            self.conn = conn
+
+        if name is not None:
+            self.name = name
 
     # TODO: Handle Invalid Region Name, when only name is passed.
     @classmethod
     def create(cls, conn, name, content, template_type, output_type, public):
         """ Create template """
 
-        resp = conn.http_post_upload(
+        resp = conn.http_post(
             f"{conn.url}/api/templates",
             {
                 "name" : name,

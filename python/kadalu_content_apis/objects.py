@@ -3,12 +3,18 @@ from kadalu_content_apis.shares import Share
 from kadalu_content_apis.helpers import response_object_or_error, APIError, Generic
 
 class Document(Generic):
-    def __init__(self, conn=None, folder_name=None, path=None, data=None):
+    def __init__(self, conn=None, folder_name=None, path=None, data={}):
         """ Intialise Document/Object """
-        self.conn = conn
-        self.folder_name = folder_name
-        self.path = path
         super().__init__(data)
+
+        if conn is not None:
+            self.conn = conn
+
+        if folder_name is not None:
+            self.folder_name = folder_name
+
+        if path is not None:
+            self.path = path
 
 
     @classmethod
@@ -20,7 +26,7 @@ class Document(Generic):
             url = f"{conn.url}/api/objects"
         else:
             url = f"{conn.url}/api/folders/{folder_name}/objects"
-        resp = conn.http_post_upload(
+        resp = conn.http_post(
             url,
             {
                 "path": path,
