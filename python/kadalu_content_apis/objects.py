@@ -82,14 +82,14 @@ class Document(Generic):
 
 
     @classmethod
-    def list(cls, conn, folder_name):
+    def list(cls, conn, folder_name, page, page_size):
         """ List object(s) of both default("/") and with folder-name """
 
         folder_name = folder_name.lstrip("/")
         if folder_name == "":
-            url = f"{conn.url}/api/objects"
+            url = f"{conn.url}/api/objects?page={page}&page_size={page_size}"
         else:
-            url = f"{conn.url}/api/folders/{folder_name}/objects"
+            url = f"{conn.url}/api/folders/{folder_name}/objects?page={page}&page_size={page_size}"
 
         resp = conn.http_get(url)
         objects = response_object_or_error(Document, resp, 200)
@@ -185,9 +185,9 @@ class Document(Generic):
         return Share.create(self.conn, self.folder_name, self.path, public, use_long_url, password, use_token, disable, revoke, expire, role)
 
 
-    def list_shares(self):
+    def list_shares(self, page=1, page_size=30):
         """ List all Shares within a folder """
-        return Share.list(self.conn, self.folder_name, self.path)
+        return Share.list(self.conn, self.folder_name, self.path, page, page_size)
 
 
     def share(self, share_id):

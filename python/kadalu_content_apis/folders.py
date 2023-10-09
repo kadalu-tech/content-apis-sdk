@@ -35,11 +35,11 @@ class Folder(Generic):
 
 
     @classmethod
-    def list_folders(cls, conn):
+    def list_folders(cls, conn, page, page_size):
         """ List all folders """
 
         resp = conn.http_get(
-            f"{conn.url}/api/folders"
+            f"{conn.url}/api/folders?page={page}&page_size={page_size}"
         )
 
         folders = response_object_or_error(Folder, resp, 200)
@@ -99,9 +99,9 @@ class Folder(Generic):
         return Document.upload(self.conn, self.name, file_path, object_type, path, immutable, version, lock, template)
 
 
-    def list_objects(self):
+    def list_objects(self, page=1, page_size=30):
         """ List objects with folder-name """
-        return Document.list(self.conn, self.name)
+        return Document.list(self.conn, self.name, page, page_size)
 
 
     def object(self, path):
@@ -114,9 +114,9 @@ class Folder(Generic):
         return Share.create(self.conn, self.name, "", public, use_long_url, password, use_token, disable, revoke, expire, role)
 
 
-    def list_shares(self):
+    def list_shares(self, page=1, page_size=30):
         """ List all Shares within a folder """
-        return Share.list(self.conn, self.name, "")
+        return Share.list(self.conn, self.name, "", page, page_size)
 
 
     def share(self, share_id):
