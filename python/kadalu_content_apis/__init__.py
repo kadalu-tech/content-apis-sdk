@@ -87,9 +87,9 @@ class Connection(ConnectionBase):
         return Folder.create(self, name, region, immutable, version, lock, template)
 
 
-    def list_folders(self):
+    def list_folders(self, page=1, page_size=30):
         """ Return list of Folders """
-        return Folder.list_folders(self)
+        return Folder.list_folders(self, page, page_size)
 
 
     def folder(self, name):
@@ -106,9 +106,9 @@ class Connection(ConnectionBase):
         return Document.upload(self, "/", file_path, object_type, path, immutable, version, lock, template)
 
 
-    def list_objects(self):
+    def list_objects(self, page=1, page_size=30):
         """ List all default("/") objects """
-        return Document.list(self, "/")
+        return Document.list(self, "/", page, page_size)
 
 
     def object(self, path):
@@ -126,9 +126,9 @@ class Connection(ConnectionBase):
         return Template.upload(self, file_path, template_type, name, output_type, public)
 
 
-    def list_templates(self):
+    def list_templates(self, page=1, page_size=30):
         """ List all templated """
-        return Template.list_templates(self)
+        return Template.list_templates(self, page, page_size)
 
 
     def template(self, name):

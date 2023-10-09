@@ -50,16 +50,16 @@ class Share:
         return outdata
 
     @classmethod
-    def list(cls, conn, folder_name, path):
+    def list(cls, conn, folder_name, path, page, page_size):
         """ List share(s) of both default("/") and with folder-name """
 
         if path == "":
-            url = f"{conn.url}/api/shares/folders/{folder_name}"
+            url = f"{conn.url}/api/shares/folders/{folder_name}?page={page}&page_size={page_size}"
         else:
-            url = f"{conn.url}/api/shares/folders/{folder_name}/objects/{path}"
+            url = f"{conn.url}/api/shares/folders/{folder_name}/objects/{path}?page={page}&page_size={page_size}"
 
         if folder_name == "/" and path != "":
-            url = f"{conn.url}/api/shares/objects/{path}"
+            url = f"{conn.url}/api/shares/objects/{path}?page={page}&page_size={page_size}"
 
         resp = conn.http_get(url)
         shares = response_object_or_error(Share, resp, 200)
