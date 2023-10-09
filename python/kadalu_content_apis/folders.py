@@ -1,12 +1,17 @@
-from kadalu_content_apis.helpers import response_object_or_error
+from kadalu_content_apis.helpers import response_object_or_error, Generic
 from kadalu_content_apis.objects import Document
 from kadalu_content_apis.shares import Share
 
-class Folder:
-    def __init__(self, conn, name):
+class Folder(Generic):
+    def __init__(self, conn=None, name=None, data={}):
         """ Intialise folder """
-        self.conn = conn
-        self.name = name
+        super().__init__(data)
+
+        if conn is not None:
+            self.conn = conn
+
+        if name is not None:
+            self.name = name
 
     # TODO: Handle Invalid Region Name, when only name is passed.
     @classmethod
@@ -24,7 +29,9 @@ class Folder:
                 "template": template
             }
         )
-        return response_object_or_error("folder", resp, 201)
+        outdata = response_object_or_error(Folder, resp, 201)
+        outdata.conn = conn
+        return outdata
 
 
     @classmethod
@@ -34,8 +41,14 @@ class Folder:
         resp = conn.http_get(
             f"{conn.url}/api/folders"
         )
-        return response_object_or_error("folder", resp, 200)
 
+        folders = response_object_or_error(Folder, resp, 200)
+
+        def update_conn(folder):
+            folder.conn = conn
+            return folder
+
+        return list(map(update_conn, folders))
 
     def get(self):
         """ Return a folder """
@@ -43,8 +56,9 @@ class Folder:
         resp = self.conn.http_get(
             f"{self.conn.url}/api/folders/{self.name}"
         )
-        return response_object_or_error("folder", resp, 200)
-
+        outdata = response_object_or_error(Folder, resp, 200)
+        outdata.conn = self.conn
+        return outdata
 
     def update(self, name=None, region=None, immutable=None, version=None, lock=None, template=None):
         """ Update folders """
@@ -65,13 +79,14 @@ class Folder:
         if resp.status == 200 and name is not None:
             self.name = name
 
-        return response_object_or_error("folder", resp, 200)
-
+        outdata = response_object_or_error(Folder, resp, 200)
+        outdata.conn = self.conn
+        return outdata
 
     def delete(self, recursive=False):
         """ Delete folders """
         resp = self.conn.http_delete(f"{self.conn.url}/api/folders/{self.name}?recursive={recursive}")
-        return response_object_or_error("folder", resp, 204)
+        return response_object_or_error(Folder, resp, 204)
 
 
     def create_object(self, path, data, object_type, immutable=False, version=False, lock=False, template=None):
@@ -94,9 +109,9 @@ class Folder:
         return Document(self.conn, self.name, path)
 
 
-    def create_share(self, public=False, use_long_url=False, password="", use_token=False, disable=False, role=""):
+    def create_share(self, public=False, use_long_url=False, password="", use_token=False, disable=False, revoke=False, expire=False, role=""):
         """ Create Share with folder name """
-        return Share.create(self.conn, self.name, "", public, use_long_url, password, use_token, disable, role)
+        return Share.create(self.conn, self.name, "", public, use_long_url, password, use_token, disable, revoke, expire, role)
 
 
     def list_shares(self):

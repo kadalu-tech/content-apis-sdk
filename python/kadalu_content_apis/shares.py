@@ -1,16 +1,24 @@
-from kadalu_content_apis.helpers import response_object_or_error
+from kadalu_content_apis.helpers import response_object_or_error, Generic
 
 class Share:
-    def __init__(self, conn, folder_name, path, share_id):
+    def __init__(self, conn=None, folder_name=None, path=None, share_id=None, data={}):
         """ Intialise Document/Object """
-        self.conn = conn
-        self.folder_name = folder_name
-        self.path = path
-        self.share_id = share_id
+        super().__init__(data)
 
+        if conn is not None:
+            self.conn = conn
+
+        if folder_name is not None:
+            self.folder_name = folder_name
+
+        if path is not None:
+            self.path = path
+
+        if share_id is not None:
+            self.id = share_id
 
     @classmethod
-    def create(cls, conn, folder_name, path, public, use_long_url, password, use_token, disable, role):
+    def create(cls, conn, folder_name, path, public, use_long_url, password, use_token, disable, revoke, expire, role):
         """ Create Share Instance """
 
         if path == "":
@@ -29,11 +37,17 @@ class Share:
                 "password": password,
                 "use_token": use_token,
                 "disable": disable,
+                "revoke": revoke,
+                "expire": expire,
                 "role": role
             }
         )
-        return response_object_or_error("Share", resp, 201)
+        outdata = response_object_or_error(Share, resp, 201)
+        outdata.conn = conn
+        outdata.folder_name = folder_name
+        outdata.path = path
 
+        return outdata
 
     @classmethod
     def list(cls, conn, folder_name, path):
@@ -48,27 +62,39 @@ class Share:
             url = f"{conn.url}/api/shares/objects/{path}"
 
         resp = conn.http_get(url)
-        return response_object_or_error("Share", resp, 200)
+        shares = response_object_or_error(Share, resp, 200)
 
+        def update_data(share):
+            share.conn = conn
+            share.folder_name = folder_name
+            share.path = path
 
-    def update(self, disable=False):
+            return share
+
+        return list(map(update_data, shares))
+
+    def update(self, disable=False, revoke=False, expire=False):
         """ Update share options """
 
-        url = f"{self.conn.url}/api/shares/{self.share_id}"
+        url = f"{self.conn.url}/api/shares/{self.id}"
 
         resp = self.conn.http_put(
             url,
             {
-                "disable": disable
+                "disable": disable,
+                "revoke": revoke,
+                "expire": expire
             }
         )
-        return response_object_or_error("Share", resp, 200)
+        outdata = response_object_or_error(Share, resp, 200)
+        outdata.conn = self.conn
 
+        return outdata
 
     def delete(self):
         """ Delete object of both default("/") and with folder-name """
 
-        url = f"{self.conn.url}/api/shares/{self.share_id}"
+        url = f"{self.conn.url}/api/shares/{self.id}"
         resp = self.conn.http_delete(url)
-        return response_object_or_error("Share", resp, 204)
+        return response_object_or_error(Share, resp, 204)
 

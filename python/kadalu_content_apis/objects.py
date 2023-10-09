@@ -1,13 +1,20 @@
 import os
 from kadalu_content_apis.shares import Share
-from kadalu_content_apis.helpers import response_object_or_error, APIError
+from kadalu_content_apis.helpers import response_object_or_error, APIError, Generic
 
-class Document:
-    def __init__(self, conn, folder_name, path):
+class Document(Generic):
+    def __init__(self, conn=None, folder_name=None, path=None, data={}):
         """ Intialise Document/Object """
-        self.conn = conn
-        self.folder_name = folder_name
-        self.path = path
+        super().__init__(data)
+
+        if conn is not None:
+            self.conn = conn
+
+        if folder_name is not None:
+            self.folder_name = folder_name
+
+        if path is not None:
+            self.path = path
 
 
     @classmethod
@@ -19,7 +26,7 @@ class Document:
             url = f"{conn.url}/api/objects"
         else:
             url = f"{conn.url}/api/folders/{folder_name}/objects"
-        resp = conn.http_post_upload(
+        resp = conn.http_post(
             url,
             {
                 "path": path,
@@ -31,8 +38,10 @@ class Document:
                 "template": template
             }
         )
-        return response_object_or_error("Object", resp, 201)
-
+        outdata = response_object_or_error(Document, resp, 201)
+        outdata.conn = conn
+        outdata.folder_name = folder_name
+        return outdata
 
     @classmethod
     def upload(cls, conn, folder_name, file_path, object_type, path, immutable, version, lock, template):
@@ -66,7 +75,10 @@ class Document:
             url,
             meta, file_path, file_content
         )
-        return response_object_or_error("Object", resp, 201)
+        outdata = response_object_or_error(Document, resp, 201)
+        outdata.conn = conn
+        outdata.folder_name = folder_name
+        return outdata
 
 
     @classmethod
@@ -80,7 +92,14 @@ class Document:
             url = f"{conn.url}/api/folders/{folder_name}/objects"
 
         resp = conn.http_get(url)
-        return response_object_or_error("folder", resp, 200)
+        objects = response_object_or_error(Document, resp, 200)
+
+        def update_conn(obj):
+            obj.conn = conn
+            obj.folder_name = folder_name
+            return obj
+
+        return list(map(update_conn, objects))
 
 
     # TODO: Handle empty responses
@@ -95,7 +114,11 @@ class Document:
             url = f"{self.conn.url}/api/folders/{folder_name}/objects/{self.path}"
 
         resp = self.conn.http_get(url)
-        return response_object_or_error("Object", resp, 200)
+
+        outdata = response_object_or_error(Document, resp, 200)
+        outdata.conn = self.conn
+        outdata.folder_name = self.folder_name
+        return outdata
 
 
     # TODO: Check for response once Object Update API is implemented
@@ -122,8 +145,10 @@ class Document:
         if resp.status == 200 and path is not None:
             self.path = path
 
-        return response_object_or_error("Object", resp, 200)
-
+        outdata = response_object_or_error(Document, resp, 200)
+        outdata.conn = self.conn
+        outdata.folder_name = self.folder_name
+        return outdata
 
     def delete(self):
         """ Delete object of both default("/") and with folder-name """
@@ -134,7 +159,7 @@ class Document:
         else:
             url = f"{self.conn.url}/api/folders/{folder_name}/objects/{self.path}"
         resp = self.conn.http_delete(url)
-        return response_object_or_error("Object", resp, 204)
+        return response_object_or_error(Document, resp, 204)
 
 
     def get_rendered(self, template=""):
@@ -155,9 +180,9 @@ class Document:
         return str(resp.data, 'utf-8')
 
 
-    def create_share(self, public=False, use_long_url=False, password="", use_token=False, disable=False, role=""):
+    def create_share(self, public=False, use_long_url=False, password="", use_token=False, disable=False, revoke=False, expire=False, role=""):
         """ Create Share with folder name and object path"""
-        return Share.create(self.conn, self.folder_name, self.path, public, use_long_url, password, use_token, disable, role)
+        return Share.create(self.conn, self.folder_name, self.path, public, use_long_url, password, use_token, disable, revoke, expire, role)
 
 
     def list_shares(self):
