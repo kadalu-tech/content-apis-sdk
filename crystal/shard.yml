@@ -1,0 +1,10 @@
+name: kadalu_content_apis
+version: 0.1.0
+
+authors:
+  - Aravinda Vishwanathapura <aravinda@kadalu.tech>
+
+description: |
+  Crystal SDK for Kadalu Content APIs
+
+license: Apache-2.0
