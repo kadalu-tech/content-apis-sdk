@@ -16,8 +16,7 @@ import kadalu_content_apis
 USERNAME = os.environ.get("USERNAME")
 EMAIL = os.environ.get("EMAIL")
 PASSWORD = os.environ.get("PASSWORD")
-USER_ID = int(os.environ.get("USER_ID"))
-TOKEN = os.environ.get("TOKEN")
+API_KEY = os.environ.get("API_KEY")
 URL = "http://localhost:5001"
 
 
@@ -29,8 +28,8 @@ def test_username_password_login():
     )
 
     # Token and user_id is set after making connection
-    assert conn.token != ""
-    assert conn.user_id == USER_ID
+    assert conn.api_key != ""
+    assert conn.username == USERNAME
 
 def test_email_password_login():
     conn = kadalu_content_apis.Connection(
@@ -39,26 +38,26 @@ def test_email_password_login():
         password=PASSWORD
     )
     # Token and user_id is set after making connection
-    assert conn.token != ""
-    assert conn.user_id == USER_ID
+    assert conn.api_key != ""
+    assert conn.username == USERNAME
 
 
 def test_user_id_token_login():
     conn = kadalu_content_apis.Connection(
         url=URL,
-        user_id=USER_ID,
-        token=TOKEN
+        username=USERNAME,
+        api_key=API_KEY
     )
     # verify token and user_id set properly
-    assert conn.token == TOKEN
-    assert conn.user_id == USER_ID
+    assert conn.api_key == API_KEY
+    assert conn.username == USERNAME
 
 
 def test_create_template():
     conn = kadalu_content_apis.Connection(
         url=URL,
-        user_id=USER_ID,
-        token=TOKEN
+        username=USERNAME,
+        api_key=API_KEY
     )
 
     content = """Hello <b>{{ data["first_name"] }}</b>"""
@@ -71,8 +70,8 @@ def test_create_template():
 def test_list_templates():
     conn = kadalu_content_apis.Connection(
         url=URL,
-        user_id=USER_ID,
-        token=TOKEN
+        username=USERNAME,
+        api_key=API_KEY
     )
 
     content = """Hello <b>{{ data["last_name"] }}</b>"""
@@ -84,8 +83,8 @@ def test_list_templates():
 def test_get_template():
     conn = kadalu_content_apis.Connection(
         url=URL,
-        user_id=USER_ID,
-        token=TOKEN
+        username=USERNAME,
+        api_key=API_KEY
     )
 
     tmpl = conn.template("simple-html")
@@ -99,8 +98,8 @@ def test_get_template():
 def test_update_template():
     conn = kadalu_content_apis.Connection(
         url=URL,
-        user_id=USER_ID,
-        token=TOKEN
+        username=USERNAME,
+        api_key=API_KEY
     )
 
     tmpl = conn.template("simple-html-2")
@@ -112,8 +111,8 @@ def test_update_template():
 def test_delete_template():
     conn = kadalu_content_apis.Connection(
         url=URL,
-        user_id=USER_ID,
-        token=TOKEN
+        username=USERNAME,
+        api_key=API_KEY
     )
 
     tmpl = conn.template("simple-html-2")
@@ -125,8 +124,8 @@ def test_delete_template():
 def test_list_folders():
     conn = kadalu_content_apis.Connection(
         url=URL,
-        user_id=USER_ID,
-        token=TOKEN
+        username=USERNAME,
+        api_key=API_KEY
     )
 
     folders = conn.list_folders()
@@ -137,8 +136,8 @@ def test_list_folders():
 def test_create_folder_without_region():
     conn = kadalu_content_apis.Connection(
         url=URL,
-        user_id=USER_ID,
-        token=TOKEN
+        username=USERNAME,
+        api_key=API_KEY
     )
 
     folder = conn.create_folder("mydocs", template="simple-html")
@@ -150,8 +149,8 @@ def test_create_folder_without_region():
 def test_create_region():
     conn = kadalu_content_apis.Connection(
         url=URL,
-        user_id=USER_ID,
-        token=TOKEN
+        username=USERNAME,
+        api_key=API_KEY
     )
 
     region = conn.create_region("in-blr", URL)
@@ -162,8 +161,8 @@ def test_create_region():
 def test_create_folder_with_region():
     conn = kadalu_content_apis.Connection(
         url=URL,
-        user_id=USER_ID,
-        token=TOKEN
+        username=USERNAME,
+        api_key=API_KEY
     )
 
     folder = conn.create_folder(name="mydocs_in_blr", region="in-blr", immutable=False, template="simple-html")
@@ -175,8 +174,8 @@ def test_create_folder_with_region():
 def test_update_folder():
     conn = kadalu_content_apis.Connection(
         url=URL,
-        user_id=USER_ID,
-        token=TOKEN
+        username=USERNAME,
+        api_key=API_KEY
     )
 
     folder = conn.create_folder(name="mydocs_in_blr_2", region="in-blr", immutable=False)
@@ -193,8 +192,8 @@ def test_update_folder():
 def test_get_folder():
     conn = kadalu_content_apis.Connection(
         url=URL,
-        user_id=USER_ID,
-        token=TOKEN
+        username=USERNAME,
+        api_key=API_KEY
     )
 
     mydocs_in_blr_2 = conn.folder("mydocs_in_blr_2")
@@ -207,8 +206,8 @@ def test_get_folder():
 def test_delete_folder():
     conn = kadalu_content_apis.Connection(
         url=URL,
-        user_id=USER_ID,
-        token=TOKEN
+        username=USERNAME,
+        api_key=API_KEY
     )
 
     # List of folders before deletion
@@ -227,8 +226,8 @@ def test_delete_folder():
 def test_create_default_object():
     conn = kadalu_content_apis.Connection(
         url=URL,
-        user_id=USER_ID,
-        token=TOKEN
+        username=USERNAME,
+        api_key=API_KEY
     )
 
     data = json.dumps({
@@ -247,8 +246,8 @@ def test_create_default_object():
 def test_get_default_object():
     conn = kadalu_content_apis.Connection(
         url=URL,
-        user_id=USER_ID,
-        token=TOKEN
+        username=USERNAME,
+        api_key=API_KEY
     )
 
     obj = conn.object(path="user-abc.json")
@@ -263,8 +262,8 @@ def test_get_default_object():
 def test_create_object_with_folder():
     conn = kadalu_content_apis.Connection(
         url=URL,
-        user_id=USER_ID,
-        token=TOKEN
+        username=USERNAME,
+        api_key=API_KEY
     )
 
     data = json.dumps({
@@ -285,8 +284,8 @@ def test_create_object_with_folder():
 def test_get_object_with_folder():
     conn = kadalu_content_apis.Connection(
         url=URL,
-        user_id=USER_ID,
-        token=TOKEN
+        username=USERNAME,
+        api_key=API_KEY
     )
 
     folder = conn.folder("mydocs_in_blr")
@@ -302,8 +301,8 @@ def test_get_object_with_folder():
 def test_list_objects():
     conn = kadalu_content_apis.Connection(
         url=URL,
-        user_id=USER_ID,
-        token=TOKEN
+        username=USERNAME,
+        api_key=API_KEY
     )
 
     # Lists default object(s)
@@ -319,8 +318,8 @@ def test_list_objects():
 def test_delete_default_object():
     conn = kadalu_content_apis.Connection(
         url=URL,
-        user_id=USER_ID,
-        token=TOKEN
+        username=USERNAME,
+        api_key=API_KEY
     )
 
     # List of default objects before deletion
@@ -339,8 +338,8 @@ def test_delete_default_object():
 def test_delete_object_with_folder():
     conn = kadalu_content_apis.Connection(
         url=URL,
-        user_id=USER_ID,
-        token=TOKEN
+        username=USERNAME,
+        api_key=API_KEY
     )
 
     # List of default objects before deletion
@@ -360,8 +359,8 @@ def test_delete_object_with_folder():
 def test_get_rendered_with_default_object():
     conn = kadalu_content_apis.Connection(
         url=URL,
-        user_id=USER_ID,
-        token=TOKEN
+        username=USERNAME,
+        api_key=API_KEY
     )
 
     data = json.dumps({
@@ -385,8 +384,8 @@ def test_get_rendered_with_default_object():
 def test_get_rendered_with_folder():
     conn = kadalu_content_apis.Connection(
         url=URL,
-        user_id=USER_ID,
-        token=TOKEN
+        username=USERNAME,
+        api_key=API_KEY
     )
 
     data = json.dumps({
@@ -412,8 +411,8 @@ def test_get_rendered_with_folder():
 def test_upload_templates_and_objects():
     conn = kadalu_content_apis.Connection(
         url=URL,
-        user_id=USER_ID,
-        token=TOKEN
+        username=USERNAME,
+        api_key=API_KEY
     )
 
     template_file_path = "extra/templates.html"
@@ -437,8 +436,8 @@ def test_upload_templates_and_objects():
 def test_folder_share_create():
     conn = kadalu_content_apis.Connection(
         url=URL,
-        user_id=USER_ID,
-        token=TOKEN
+        username=USERNAME,
+        api_key=API_KEY
     )
 
     folder = conn.folder("mydocs_in_blr")
@@ -453,8 +452,8 @@ def test_folder_share_create():
 def test_object_share_create():
     conn = kadalu_content_apis.Connection(
         url=URL,
-        user_id=USER_ID,
-        token=TOKEN
+        username=USERNAME,
+        api_key=API_KEY
     )
 
     folder = conn.folder("mydocs_in_blr")
@@ -468,11 +467,10 @@ def test_object_share_create():
 
 
 def test_delete_shares():
-
     conn = kadalu_content_apis.Connection(
         url=URL,
-        user_id=USER_ID,
-        token=TOKEN
+        username=USERNAME,
+        api_key=API_KEY
     )
 
     folder = conn.folder("mydocs_in_blr")

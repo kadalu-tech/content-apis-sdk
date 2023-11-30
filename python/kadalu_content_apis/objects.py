@@ -1,4 +1,6 @@
 import os
+import json
+
 from kadalu_content_apis.shares import Share
 from kadalu_content_apis.helpers import response_object_or_error, APIError, Generic
 
@@ -18,7 +20,7 @@ class Document(Generic):
 
 
     @classmethod
-    def create(cls, conn, folder_name, path, data, object_type, immutable, version, lock, template):
+    def create(cls, conn, folder_name, path, data, object_type, version, template):
         """ Create object of both default("/") and with folder-name """
 
         folder_name = folder_name.lstrip("/")
@@ -32,9 +34,7 @@ class Document(Generic):
                 "path": path,
                 "type": object_type,
                 "data": data,
-                "immutable": immutable,
                 "version": version,
-                "lock": lock,
                 "template": template
             }
         )
@@ -44,7 +44,7 @@ class Document(Generic):
         return outdata
 
     @classmethod
-    def upload(cls, conn, folder_name, file_path, object_type, path, immutable, version, lock, template):
+    def upload(cls, conn, folder_name, file_path, object_type, path, version, template):
         """ Upload object data at file_path """
 
         file_content = ""
@@ -55,26 +55,25 @@ class Document(Generic):
         else:
             url = f"{conn.url}/api/folders/{folder_name}/objects"
 
-        with open(file_path, "r") as file:
+        with open(file_path, 'rb') as file:
             file_content = file.read()
 
         # If path is empty, set filepath as path excluding the relative path
         if path == "":
             path = os.path.basename(file_path)
 
-        meta = {
-                "path": path,
-                "type": object_type,
-                "immutable": immutable,
-                "version": version,
-                "lock": lock,
-                "template": template
+        data = {
+            "path": path,
+            "type": object_type,
+            "version": json.dumps(version),
+            "template": template
         }
 
-        resp = conn.http_post_upload(
-            url,
-            meta, file_path, file_content
-        )
+        files = {
+            "data": (file_path, file_content)
+        }
+
+        resp = conn.http_post_upload(url, data, files)
         outdata = response_object_or_error(Document, resp, 201)
         outdata.conn = conn
         outdata.folder_name = folder_name
@@ -142,7 +141,7 @@ class Document(Generic):
         )
 
         # Update object name so deletion can be done from the same object after updation.
-        if resp.status == 200 and path is not None:
+        if resp.status_code == 200 and path is not None:
             self.path = path
 
         outdata = response_object_or_error(Document, resp, 200)
@@ -175,7 +174,7 @@ class Document(Generic):
 
         # TODO: Send response in correct way
         # return response_object_or_error("Object", resp, 200)
-        if resp.status != 200:
+        if resp.status_code != 200:
             raise APIError(resp)
         return str(resp.data, 'utf-8')
 

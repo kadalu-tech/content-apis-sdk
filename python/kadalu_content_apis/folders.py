@@ -15,7 +15,7 @@ class Folder(Generic):
 
     # TODO: Handle Invalid Region Name, when only name is passed.
     @classmethod
-    def create(cls, conn, name, region, immutable, version, lock, template):
+    def create(cls, conn, name, region, version, template):
         """ Create folder """
 
         resp = conn.http_post(
@@ -23,9 +23,7 @@ class Folder(Generic):
             {
                 "name" : name,
                 "region": region,
-                "immutable": immutable,
                 "version": version,
-                "lock": lock,
                 "template": template
             }
         )
@@ -60,7 +58,7 @@ class Folder(Generic):
         outdata.conn = self.conn
         return outdata
 
-    def update(self, name=None, region=None, immutable=None, version=None, lock=None, template=None):
+    def update(self, name=None, region=None, version=None, template=None):
         """ Update folders """
 
         resp = self.conn.http_put(
@@ -68,9 +66,7 @@ class Folder(Generic):
             {
                 "name": name,
                 "region": region,
-                "immutable": immutable,
                 "version": version,
-                "lock": lock,
                 "template": template
             }
         )
@@ -89,14 +85,14 @@ class Folder(Generic):
         return response_object_or_error(Folder, resp, 204)
 
 
-    def create_object(self, path, data, object_type, immutable=False, version=False, lock=False, template=None):
+    def create_object(self, path, data, object_type, version=False, template=None):
         """ Create object with folder-name """
-        return Document.create(self.conn, self.name, path, data, object_type, immutable, version, lock, template)
+        return Document.create(self.conn, self.name, path, data, object_type, version, template)
 
 
-    def upload_object(self, file_path, object_type, path="", immutable=False, version=False, lock=False, template=None):
+    def upload_object(self, file_path, object_type, path="", version=False, template=None):
         """ Create default("/") object """
-        return Document.upload(self.conn, self.name, file_path, object_type, path, immutable, version, lock, template)
+        return Document.upload(self.conn, self.name, file_path, object_type, path, version, template)
 
 
     def list_objects(self, page=1, page_size=30):

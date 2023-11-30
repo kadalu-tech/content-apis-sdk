@@ -6,7 +6,7 @@ from kadalu_content_apis.templates import Template
 from kadalu_content_apis.helpers import ConnectionBase, APIError, json_from_response
 
 class Connection(ConnectionBase):
-    def __init__(self, url, username=None, email=None, password=None, user_id=None, token=None):
+    def __init__(self, url, username=None, email=None, password=None, api_key=None):
         """Intialise Connection and Login to Kadalu Content API"""
         self.url = url.strip("/")
         super().__init__()
@@ -21,8 +21,8 @@ class Connection(ConnectionBase):
 
             resp_json = json_from_response(resp)
 
-            self.user_id = resp_json["user_id"]
-            self.token = resp_json["token"]
+            self.username = username
+            self.api_key = resp_json["token"]
 
         if email is not None and password is not None:
             resp = self.http_post(self.url + "/api/api-keys", {"email": email, "password": password})
@@ -34,12 +34,12 @@ class Connection(ConnectionBase):
 
             resp_json = json_from_response(resp)
 
-            self.user_id = resp_json["user_id"]
-            self.token = resp_json["token"]
+            self.username = username
+            self.api_key = resp_json["token"]
 
-        if user_id is not None and token is not None:
-            self.user_id = user_id
-            self.token = token
+        if username is not None and api_key is not None:
+            self.username = username
+            self.api_key = api_key
 
 
     @classmethod
@@ -52,7 +52,7 @@ class Connection(ConnectionBase):
         ```
         URL=https://app.kadalu.tech
         API_KEY=bc7889..
-        USER_ID=7
+        USERNAME=aravindavk
         ```
 
         Usage:
@@ -73,8 +73,8 @@ class Connection(ConnectionBase):
 
         return Connection(
             env_vars["URL"],
-            user_id=env_vars["USER_ID"],
-            token=env_vars["API_KEY"]
+            username=env_vars["USERNAME"],
+            api_key=env_vars["API_KEY"]
         )
 
     def create_region(self, name, address):
@@ -82,9 +82,9 @@ class Connection(ConnectionBase):
         return Region.create(self, name, address)
 
 
-    def create_folder(self, name, region="", immutable=False, version=False, lock=False, template=None):
+    def create_folder(self, name, region="", version=False, template=None):
         """ Create a new Folder """
-        return Folder.create(self, name, region, immutable, version, lock, template)
+        return Folder.create(self, name, region, version, template)
 
 
     def list_folders(self, page=1, page_size=30):
@@ -96,14 +96,14 @@ class Connection(ConnectionBase):
         return Folder(self, name)
 
 
-    def create_object(self, path, data, object_type, immutable=False, version=False, lock=False, template=None):
+    def create_object(self, path, data, object_type, version=False, template=None):
         """ Create default("/") object """
-        return Document.create(self, "/", path, data, object_type, immutable, version, lock, template)
+        return Document.create(self, "/", path, data, object_type, version, template)
 
     # TODO: Add path to `upload_object`
-    def upload_object(self, file_path, object_type, path="", immutable=False, version=False, lock=False, template=None):
+    def upload_object(self, file_path, object_type, path="", version=False, template=None):
         """ Create default("/") object """
-        return Document.upload(self, "/", file_path, object_type, path, immutable, version, lock, template)
+        return Document.upload(self, "/", file_path, object_type, path, version, template)
 
 
     def list_objects(self, page=1, page_size=30):

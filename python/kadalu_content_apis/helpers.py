@@ -1,84 +1,60 @@
 # noqa # pylint: disable=missing-module-docstring
 import json
-import urllib3
-from urllib3.filepost import encode_multipart_formdata
+
+import requests
+
 
 class APIError(Exception):
     """ APIError Exception """
     def __init__(self, resp):
         data = json_from_response(resp)
         self.message = data["error"]
-        self.status_code = resp.status
+        self.status_code = resp.status_code
         super().__init__(self.message)
 
 
 class ConnectionBase:
     # noqa # pylint: disable=missing-class-docstring
     def __init__(self):
-        self.token = ""
-        self.user_id = ""
+        self.api_key = ""
+        self.username = ""
 
-    def get_headers(self):
-        """ Returns token and user-id as headers """
+    def get_headers(self, content_type = True):
+        """ Returns Authorization and X-USERNAME headers """
 
-        headers = {'Content-Type': 'application/json'}
+        headers = {}
+        if content_type:
+            headers['Content-Type'] = 'application/json'
 
-        if self.token != "":
-            headers["Authorization"] = f"Bearer {self.token}"
+        if self.api_key != "":
+            headers["Authorization"] = f"Bearer {self.api_key}"
 
-        if self.user_id != "":
-            headers["X-USER-ID"] = self.user_id
+        if self.username != "":
+            headers["X-USERNAME"] = self.username
 
         return headers
 
     def http_post(self, url, data):
         """ Send HTTP Post Request with headers """
 
-        http = urllib3.PoolManager()
-        encoded_data = json.dumps(data).encode('utf-8')
-        resp = http.request(
-            'POST',
+        resp = requests.post(
             url,
-            body=encoded_data,
+            json=data,
             headers=self.get_headers()
         )
 
         return resp
 
 
-    def http_post_upload(self, url, meta, file_name="", file_content=""):
+    def http_post_upload(self, url, data, files):
         """ Send HTTP Post Request by uploading a file """
 
-        http = urllib3.PoolManager()
-
-        fields = {
-            "file": (file_name, file_content),
-        }
-
-        if meta is not None:
-            fields["meta"] = json.dumps(meta)
-
-        encoded_data, multipart_headers = encode_multipart_formdata(fields)
-
-        # TODO: Explore `request` library to simplify sending multipart_formdata
-        # multipart_headers is of the form,
-        # 'multipart/form-data; boundary=a7b8ab6d919b6933490251e1d52f5551'
-        # but we require headers['Content-Type'] to be 'Content-Type': 'multipart/form-data; boundary="a7b8ab6d919b6933490251e1d52f5551"'
-        # hence extract int(boundary) from above string assign to updated headers to take final form as,
-        # {'Content-Type': 'multipart/form-data; boundary="a7b8ab6d919b6933490251e1d52f5551"', 'Authorization': 'Bearer NNN', 'USER_ID': N}
-
-        headers = self.get_headers()
-
-        boundary = multipart_headers.split("=")[1]
-        multipart_header = f'multipart/form-data; boundary="{boundary}"'
-        headers['Content-Type'] = multipart_header
-
         # Send the request and get the response
-        resp = http.request(
-            method="POST",
+        resp = requests.post(
             url=url,
-            body=encoded_data,
-            headers=headers
+            data=data,
+            files=files,
+            headers=self.get_headers(content_type = False)
         )
 
         return resp
@@ -87,12 +63,9 @@ class ConnectionBase:
     def http_put(self, url, data):
         """ Send HTTP Put Request with headers """
 
-        http = urllib3.PoolManager()
-        encoded_data = json.dumps(data).encode('utf-8')
-        resp = http.request(
-            'PUT',
+        resp = requests.put(
             url,
-            body=encoded_data,
+            json=data,
             headers=self.get_headers()
         )
 
@@ -102,9 +75,7 @@ class ConnectionBase:
     def http_delete(self, url):
         """ Send HTTP Delete Request """
 
-        http = urllib3.PoolManager()
-        resp = http.request(
-            'DELETE',
+        resp = requests.delete(
             url,
             headers=self.get_headers()
         )
@@ -115,9 +86,7 @@ class ConnectionBase:
     def http_get(self, url):
         """ Send HTTP Get request with headers """
 
-        http = urllib3.PoolManager()
-        resp = http.request(
-            'GET',
+        resp = requests.get(
             url,
             headers=self.get_headers()
         )
@@ -164,13 +133,13 @@ def to_object(cls, data):
 
 def json_from_response(resp):
     """ Wrapper to convert HTTP response into JSON """
-    return json.loads(resp.data.decode('utf-8'))
+    return resp.json()
 
 
 def response_object_or_error(cls, resp, status_code=200):
     """ Return resp in object or raise APIError Exception if request fails """
 
-    if resp.status == status_code:
+    if resp.status_code == status_code:
         if status_code == 204:
             return None
 
