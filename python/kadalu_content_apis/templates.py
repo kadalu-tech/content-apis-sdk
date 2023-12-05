@@ -90,7 +90,7 @@ class Template(Generic):
             "content": (file_path, file_content)
         }
 
-        resp = self.conn.http_put_upload(f"{conn.url}/api/templates/{self.name}", data, files)
+        resp = self.conn.http_put_upload(f"{self.conn.url}/api/templates/{self.name}", data, files)
         outdata = response_object_or_error(Template, resp, 200)
         outdata.conn = self.conn
 
