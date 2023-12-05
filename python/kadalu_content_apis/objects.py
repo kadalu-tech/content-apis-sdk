@@ -16,7 +16,7 @@ class Document(Generic):
             self.folder_name = folder_name
 
         if path is not None:
-            self.path = path
+            self.path = path.lstrip("/")
 
 
     @classmethod
