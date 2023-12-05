@@ -44,7 +44,7 @@ class Document(Generic):
         return outdata
 
     @classmethod
-    def upload(cls, conn, folder_name, file_path, object_type, path, version, template):
+    def upload_create(cls, conn, folder_name, file_path, object_type, path, version, template):
         """ Upload object data at file_path """
 
         file_content = ""
@@ -79,6 +79,39 @@ class Document(Generic):
         outdata.folder_name = folder_name
         return outdata
 
+    def upload(self, file_path, object_type=None, path=None, template=None):
+        """ Upload object data at file_path """
+
+        file_content = ""
+
+        folder_name = self.folder_name.lstrip("/")
+        if folder_name == "":
+            url = f"{self.conn.url}/api/objects"
+        else:
+            url = f"{self.conn.url}/api/folders/{folder_name}/objects/{self.path}"
+
+        with open(file_path, 'rb') as file:
+            file_content = file.read()
+
+        data = {}
+        if path is not None:
+            data["path"] = path
+
+        if object_type is not None:
+            data["type"] = object_type
+
+        if template is not None:
+            data["template"] = template
+
+        files = {
+            "data": (file_path, file_content)
+        }
+
+        resp = conn.http_put_upload(url, data, files)
+        outdata = response_object_or_error(Document, resp, 200)
+        outdata.conn = conn
+        outdata.folder_name = folder_name
+        return outdata
 
     @classmethod
     def list(cls, conn, folder_name, page, page_size):

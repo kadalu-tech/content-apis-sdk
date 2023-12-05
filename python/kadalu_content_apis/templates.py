@@ -35,7 +35,7 @@ class Template(Generic):
         return outdata
 
     @classmethod
-    def upload(cls, conn, file_path, template_type, name, output_type, public):
+    def upload_create(cls, conn, file_path, template_type, name, output_type, public):
 
         file_content = ""
         with open(file_path, 'rb') as file:
@@ -58,6 +58,40 @@ class Template(Generic):
 
         resp = conn.http_post_upload(f"{conn.url}/api/templates", data, files)
         outdata = response_object_or_error(Template, resp, 201)
+        outdata.conn = conn
+
+        return outdata
+
+    def upload(self, conn, file_path, template_type=None, name=None, output_type=None, public=None):
+
+        file_content = ""
+        with open(file_path, 'rb') as file:
+            file_content = file.read()
+
+        # Set name as basename of file_path when name is not passed
+        if name == "":
+            name = os.path.basename(file_path)
+
+        data = {}
+
+        if name is not None:
+            data["name"] = name
+
+        if template_type is not None:
+            data["type"] = template_type
+
+        if output_type is not None:
+            data["output_type"] = output_type
+
+        if public is not None:
+            data["public"] = public
+
+        files = {
+            "content": (file_path, file_content)
+        }
+
+        resp = conn.http_put_upload(f"{conn.url}/api/templates/{self.name}", data, files)
+        outdata = response_object_or_error(Template, resp, 200)
         outdata.conn = conn
 
         return outdata

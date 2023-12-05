@@ -13,6 +13,14 @@ class APIError(Exception):
         super().__init__(self.message)
 
 
+class ExistsError(APIError):
+    pass
+
+
+class NotFoundError(APIError):
+    pass
+
+
 class ConnectionBase:
     # noqa # pylint: disable=missing-class-docstring
     def __init__(self):
@@ -59,6 +67,18 @@ class ConnectionBase:
 
         return resp
 
+    def http_put_upload(self, url, data, files):
+        """ Send HTTP Put Request by uploading a file """
+
+        # Send the request and get the response
+        resp = requests.put(
+            url=url,
+            data=data,
+            files=files,
+            headers=self.get_headers(content_type = False)
+        )
+
+        return resp
 
     def http_put(self, url, data):
         """ Send HTTP Put Request with headers """
@@ -144,5 +164,11 @@ def response_object_or_error(cls, resp, status_code=200):
             return None
 
         return to_object(cls, json_from_response(resp))
+
+    if resp.status_code == 409:
+        raise ExistsError(resp)
+
+    if resp.status_code == 404:
+        raise NotFoundError(resp)
 
     raise APIError(resp)

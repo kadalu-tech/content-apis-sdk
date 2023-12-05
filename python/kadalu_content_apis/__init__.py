@@ -103,7 +103,7 @@ class Connection(ConnectionBase):
     # TODO: Add path to `upload_object`
     def upload_object(self, file_path, object_type, path="", version=False, template=None):
         """ Create default("/") object """
-        return Document.upload(self, "/", file_path, object_type, path, version, template)
+        return Document.upload_create(self, "/", file_path, object_type, path, version, template)
 
 
     def list_objects(self, page=1, page_size=30):
@@ -123,7 +123,7 @@ class Connection(ConnectionBase):
 
     def upload_template(self, file_path, template_type, name="", output_type="text", public=False):
         """ Upload Template """
-        return Template.upload(self, file_path, template_type, name, output_type, public)
+        return Template.upload_create(self, file_path, template_type, name, output_type, public)
 
 
     def list_templates(self, page=1, page_size=30):

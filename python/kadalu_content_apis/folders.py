@@ -92,7 +92,7 @@ class Folder(Generic):
 
     def upload_object(self, file_path, object_type, path="", version=False, template=None):
         """ Create default("/") object """
-        return Document.upload(self.conn, self.name, file_path, object_type, path, version, template)
+        return Document.upload_create(self.conn, self.name, file_path, object_type, path, version, template)
 
 
     def list_objects(self, page=1, page_size=30):
