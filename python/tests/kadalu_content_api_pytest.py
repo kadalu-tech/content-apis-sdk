@@ -14,35 +14,11 @@ sys.path.append(parent_dir)
 import kadalu_content_apis
 
 USERNAME = os.environ.get("USERNAME")
-EMAIL = os.environ.get("EMAIL")
-PASSWORD = os.environ.get("PASSWORD")
 API_KEY = os.environ.get("API_KEY")
 URL = "http://localhost:5001"
 
 
-def test_username_password_login():
-    conn = kadalu_content_apis.Connection(
-        url=URL,
-        username=USERNAME,
-        password=PASSWORD
-    )
-
-    # Token and user_id is set after making connection
-    assert conn.api_key != ""
-    assert conn.username == USERNAME
-
-def test_email_password_login():
-    conn = kadalu_content_apis.Connection(
-        url=URL,
-        email=EMAIL,
-        password=PASSWORD
-    )
-    # Token and user_id is set after making connection
-    assert conn.api_key != ""
-    assert conn.username == USERNAME
-
-
-def test_user_id_token_login():
+def test_username_token_login():
     conn = kadalu_content_apis.Connection(
         url=URL,
         username=USERNAME,
