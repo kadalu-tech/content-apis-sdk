@@ -3,39 +3,15 @@ from kadalu_content_apis.regions import Region
 from kadalu_content_apis.folders import Folder
 from kadalu_content_apis.objects import Document
 from kadalu_content_apis.templates import Template
-from kadalu_content_apis.helpers import ConnectionBase, APIError, json_from_response
+from kadalu_content_apis.helpers import ConnectionBase, APIError, json_from_response, ExistsError, NotFoundError
+
+DEFAULT_URL = "https://app.kadalu.tech"
 
 class Connection(ConnectionBase):
-    def __init__(self, url, username=None, email=None, password=None, api_key=None):
+    def __init__(self, username, api_key, url=DEFAULT_URL):
         """Intialise Connection and Login to Kadalu Content API"""
         self.url = url.strip("/")
         super().__init__()
-
-        if username is not None and password is not None:
-            resp = self.http_post(self.url + "/api/api-keys", {"username": username, "password": password})
-
-            # TODO: Send correct error response from API when username/password/etc are wrong
-            # Currently response data seems to be empty.
-            # if resp.status != 201:
-            #     raise APIError(resp)
-
-            resp_json = json_from_response(resp)
-
-            self.username = username
-            self.api_key = resp_json["token"]
-
-        if email is not None and password is not None:
-            resp = self.http_post(self.url + "/api/api-keys", {"email": email, "password": password})
-
-            # TODO: Send correct error response from API when email/password/etc are wrong
-            # Currently response data seems to be empty.
-            # if resp.status != 201:
-            #     raise APIError(resp)
-
-            resp_json = json_from_response(resp)
-
-            self.username = username
-            self.api_key = resp_json["token"]
 
         if username is not None and api_key is not None:
             self.username = username
@@ -72,9 +48,9 @@ class Connection(ConnectionBase):
                 env_vars[key.strip()] = value.strip()
 
         return Connection(
-            env_vars["URL"],
             username=env_vars["USERNAME"],
-            api_key=env_vars["API_KEY"]
+            api_key=env_vars["API_KEY"],
+            url=env_vars.get("URL", DEFAULT_URL)
         )
 
     def create_region(self, name, address):
