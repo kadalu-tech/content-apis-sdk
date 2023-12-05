@@ -107,9 +107,9 @@ class Document(Generic):
             "data": (file_path, file_content)
         }
 
-        resp = conn.http_put_upload(url, data, files)
+        resp = self.conn.http_put_upload(url, data, files)
         outdata = response_object_or_error(Document, resp, 200)
-        outdata.conn = conn
+        outdata.conn = self.conn
         outdata.folder_name = folder_name
         return outdata
 
