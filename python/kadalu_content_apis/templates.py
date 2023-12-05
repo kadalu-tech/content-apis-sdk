@@ -62,7 +62,7 @@ class Template(Generic):
 
         return outdata
 
-    def upload(self, conn, file_path, template_type=None, name=None, output_type=None, public=None):
+    def upload(self, file_path, template_type=None, name=None, output_type=None, public=None):
 
         file_content = ""
         with open(file_path, 'rb') as file:
