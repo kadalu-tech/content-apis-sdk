@@ -1,6 +1,6 @@
 from kadalu_content_apis.helpers import response_object_or_error, Generic
 
-class Share:
+class Share(Generic):
     def __init__(self, conn=None, folder_name=None, path=None, share_id=None, data={}):
         """ Intialise Document/Object """
         super().__init__(data)
