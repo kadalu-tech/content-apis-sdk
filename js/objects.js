@@ -13,7 +13,7 @@ export default class Document {
         this.path = path;
     }
 
-    static async create(conn, folder_name, path, data, object_type, version, template) {
+    static async create(conn, folder_name, path, data, object_type, threads, template) {
         folder_name = folder_name.replace(/^\//, "");
         let url;
         if (folder_name === "") {
@@ -27,7 +27,7 @@ export default class Document {
                 path: path,
                 type: object_type,
                 data: data,
-                version: version,
+                threads: threads,
                 template: template
             })
     }

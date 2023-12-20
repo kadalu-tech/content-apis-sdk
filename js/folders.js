@@ -6,11 +6,11 @@ export default class Folder {
         this.name = name;
     }
 
-    static async create(conn, name, region, version, template) {
+    static async create(conn, name, region, threads, template) {
         return await conn.httpPost(`/api/folders`, {
             name: name,
             region: region,
-            version: version,
+            threads: threads,
             template: template
         })
     }
@@ -25,11 +25,11 @@ export default class Folder {
         )
     }
 
-    async update(name="", region="", version=false, template="") {
+    async update(name="", region="", threads=false, template="") {
         return await conn.httpPut(`/api/folders/${this.name}`, {
             name: name,
             region: region,
-            version: version,
+            threads: threads,
             template: template
         })
     }
@@ -40,8 +40,8 @@ export default class Folder {
         )
     }
 
-    async createObject(path, data, object_type, version=false, template="") {
-        return await Document.create(this.conn, this.name, path, data, object_type, version, template);
+    async createObject(path, data, object_type, threads=false, template="") {
+        return await Document.create(this.conn, this.name, path, data, object_type, threads, template);
     }
 
     async listObjects() {
