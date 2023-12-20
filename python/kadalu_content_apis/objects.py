@@ -20,7 +20,7 @@ class Document(Generic):
 
 
     @classmethod
-    def create(cls, conn, folder_name, path, data, object_type, version, template):
+    def create(cls, conn, folder_name, path, data, object_type, threads, template):
         """ Create object of both default("/") and with folder-name """
 
         folder_name = folder_name.lstrip("/")
@@ -34,7 +34,7 @@ class Document(Generic):
                 "path": path,
                 "type": object_type,
                 "data": data,
-                "version": version,
+                "threads": threads,
                 "template": template
             }
         )
@@ -44,7 +44,7 @@ class Document(Generic):
         return outdata
 
     @classmethod
-    def upload_create(cls, conn, folder_name, file_path, object_type, path, version, template):
+    def upload_create(cls, conn, folder_name, file_path, object_type, path, threads, template):
         """ Upload object data at file_path """
 
         file_content = ""
@@ -65,7 +65,7 @@ class Document(Generic):
         data = {
             "path": path,
             "type": object_type,
-            "version": json.dumps(version),
+            "threads": json.dumps(threads),
             "template": template
         }
 

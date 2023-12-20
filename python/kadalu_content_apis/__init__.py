@@ -58,9 +58,9 @@ class Connection(ConnectionBase):
         return Region.create(self, name, address)
 
 
-    def create_folder(self, name, region="", version=False, template=None):
+    def create_folder(self, name, region="", threads=False, template=None):
         """ Create a new Folder """
-        return Folder.create(self, name, region, version, template)
+        return Folder.create(self, name, region, threads, template)
 
 
     def list_folders(self, page=1, page_size=30):
@@ -72,14 +72,14 @@ class Connection(ConnectionBase):
         return Folder(self, name)
 
 
-    def create_object(self, path, data, object_type, version=False, template=None):
+    def create_object(self, path, data, object_type, threads=False, template=None):
         """ Create default("/") object """
-        return Document.create(self, "/", path, data, object_type, version, template)
+        return Document.create(self, "/", path, data, object_type, threads, template)
 
     # TODO: Add path to `upload_object`
-    def upload_object(self, file_path, object_type, path="", version=False, template=None):
+    def upload_object(self, file_path, object_type, path="", threads=False, template=None):
         """ Create default("/") object """
-        return Document.upload_create(self, "/", file_path, object_type, path, version, template)
+        return Document.upload_create(self, "/", file_path, object_type, path, threads, template)
 
 
     def list_objects(self, page=1, page_size=30):
