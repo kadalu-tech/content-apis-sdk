@@ -1,3 +1,5 @@
+import json
+
 from kadalu_content_apis.helpers import response_object_or_error, Generic
 
 class Template(Generic):
@@ -33,38 +35,73 @@ class Template(Generic):
         return outdata
 
     @classmethod
-    def upload(cls, conn, file_path, template_type, name, output_type, public):
+    def upload_create(cls, conn, file_path, template_type, name, output_type, public):
 
         file_content = ""
-        with open(file_path, "r") as file:
+        with open(file_path, 'rb') as file:
             file_content = file.read()
 
         # Set name as basename of file_path when name is not passed
         if name == "":
             name = os.path.basename(file_path)
 
-        meta = {
-                "name" : name,
-                "type": template_type,
-                "output_type": output_type,
-                "public": public
+        data = {
+            "name" : name,
+            "type": template_type,
+            "output_type": output_type,
+            "public": json.dumps(public)
         }
 
-        resp = conn.http_post_upload(
-            f"{conn.url}/api/templates",
-            meta, file_path, file_content
-        )
+        files = {
+            "content": (file_path, file_content)
+        }
+
+        resp = conn.http_post_upload(f"{conn.url}/api/templates", data, files)
         outdata = response_object_or_error(Template, resp, 201)
         outdata.conn = conn
 
         return outdata
 
+    def upload(self, file_path, template_type=None, name=None, output_type=None, public=None):
+
+        file_content = ""
+        with open(file_path, 'rb') as file:
+            file_content = file.read()
+
+        # Set name as basename of file_path when name is not passed
+        if name == "":
+            name = os.path.basename(file_path)
+
+        data = {}
+
+        if name is not None:
+            data["name"] = name
+
+        if template_type is not None:
+            data["type"] = template_type
+
+        if output_type is not None:
+            data["output_type"] = output_type
+
+        if public is not None:
+            data["public"] = public
+
+        files = {
+            "content": (file_path, file_content)
+        }
+
+        resp = self.conn.http_put_upload(f"{self.conn.url}/api/templates/{self.name}", data, files)
+        outdata = response_object_or_error(Template, resp, 200)
+        outdata.conn = self.conn
+
+        return outdata
+
     @classmethod
-    def list_templates(cls, conn):
+    def list_templates(cls, conn, page, page_size):
         """ List all templates """
 
         resp = conn.http_get(
-            f"{conn.url}/api/templates"
+            f"{conn.url}/api/templates?page={page}&page_size={page_size}"
         )
         templates = response_object_or_error(Template, resp, 200)
 

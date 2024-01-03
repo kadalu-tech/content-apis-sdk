@@ -1,6 +1,6 @@
 from kadalu_content_apis.helpers import response_object_or_error, Generic
 
-class Share:
+class Share(Generic):
     def __init__(self, conn=None, folder_name=None, path=None, share_id=None, data={}):
         """ Intialise Document/Object """
         super().__init__(data)
@@ -50,16 +50,16 @@ class Share:
         return outdata
 
     @classmethod
-    def list(cls, conn, folder_name, path):
+    def list(cls, conn, folder_name, path, page, page_size):
         """ List share(s) of both default("/") and with folder-name """
 
         if path == "":
-            url = f"{conn.url}/api/shares/folders/{folder_name}"
+            url = f"{conn.url}/api/shares/folders/{folder_name}?page={page}&page_size={page_size}"
         else:
-            url = f"{conn.url}/api/shares/folders/{folder_name}/objects/{path}"
+            url = f"{conn.url}/api/shares/folders/{folder_name}/objects/{path}?page={page}&page_size={page_size}"
 
         if folder_name == "/" and path != "":
-            url = f"{conn.url}/api/shares/objects/{path}"
+            url = f"{conn.url}/api/shares/objects/{path}?page={page}&page_size={page_size}"
 
         resp = conn.http_get(url)
         shares = response_object_or_error(Share, resp, 200)

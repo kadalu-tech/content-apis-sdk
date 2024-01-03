@@ -234,8 +234,8 @@ export default class ContentAPI {
         return await Region.create(this, name, address);
     }
 
-    async createFolder(name, region, immutable, version, lock, template) {
-        return await Folder.create(this, name, region, immutable, version, lock, template);
+    async createFolder(name, region, threads, template) {
+        return await Folder.create(this, name, region, threads, template);
     }
 
     async listFolders() {
@@ -246,12 +246,12 @@ export default class ContentAPI {
         return new Folder(this, name);
     }
 
-    async createObject(path, data, object_type, immutable = false, version = false, lock = false, template = "") {
-        return await Document.create(this, "/", path, data, object_type, immutable, version, lock, template);
+    async createObject(path, data, object_type, threads = false, template = "") {
+        return await Document.create(this, "/", path, data, object_type, threads, template);
     }
 
-    async uploadObject(filePath, object_type, path = "", immutable = false, version = false, lock = false, template = "") {
-        return await Document.upload(this, "/", filePath, object_type, path, immutable, version, lock, template);
+    async uploadObject(filePath, object_type, path = "", threads = false, template = "") {
+        return await Document.upload(this, "/", filePath, object_type, path, threads, template);
     }
 
     async listObjects() {

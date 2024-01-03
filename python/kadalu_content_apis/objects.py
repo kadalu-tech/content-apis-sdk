@@ -1,4 +1,6 @@
 import os
+import json
+
 from kadalu_content_apis.shares import Share
 from kadalu_content_apis.helpers import response_object_or_error, APIError, Generic
 
@@ -14,11 +16,11 @@ class Document(Generic):
             self.folder_name = folder_name
 
         if path is not None:
-            self.path = path
+            self.path = path.lstrip("/")
 
 
     @classmethod
-    def create(cls, conn, folder_name, path, data, object_type, immutable, version, lock, template):
+    def create(cls, conn, folder_name, path, data, object_type, threads, template):
         """ Create object of both default("/") and with folder-name """
 
         folder_name = folder_name.lstrip("/")
@@ -32,9 +34,7 @@ class Document(Generic):
                 "path": path,
                 "type": object_type,
                 "data": data,
-                "immutable": immutable,
-                "version": version,
-                "lock": lock,
+                "threads": threads,
                 "template": template
             }
         )
@@ -44,7 +44,7 @@ class Document(Generic):
         return outdata
 
     @classmethod
-    def upload(cls, conn, folder_name, file_path, object_type, path, immutable, version, lock, template):
+    def upload_create(cls, conn, folder_name, file_path, object_type, path, threads, template):
         """ Upload object data at file_path """
 
         file_content = ""
@@ -55,41 +55,73 @@ class Document(Generic):
         else:
             url = f"{conn.url}/api/folders/{folder_name}/objects"
 
-        with open(file_path, "r") as file:
+        with open(file_path, 'rb') as file:
             file_content = file.read()
 
         # If path is empty, set filepath as path excluding the relative path
         if path == "":
             path = os.path.basename(file_path)
 
-        meta = {
-                "path": path,
-                "type": object_type,
-                "immutable": immutable,
-                "version": version,
-                "lock": lock,
-                "template": template
+        data = {
+            "path": path,
+            "type": object_type,
+            "threads": json.dumps(threads),
+            "template": template
         }
 
-        resp = conn.http_post_upload(
-            url,
-            meta, file_path, file_content
-        )
+        files = {
+            "data": (file_path, file_content)
+        }
+
+        resp = conn.http_post_upload(url, data, files)
         outdata = response_object_or_error(Document, resp, 201)
         outdata.conn = conn
         outdata.folder_name = folder_name
         return outdata
 
+    def upload(self, file_path, object_type=None, path=None, template=None):
+        """ Upload object data at file_path """
+
+        file_content = ""
+
+        folder_name = self.folder_name.lstrip("/")
+        if folder_name == "":
+            url = f"{self.conn.url}/api/objects"
+        else:
+            url = f"{self.conn.url}/api/folders/{folder_name}/objects/{self.path}"
+
+        with open(file_path, 'rb') as file:
+            file_content = file.read()
+
+        data = {}
+        if path is not None:
+            data["path"] = path
+
+        if object_type is not None:
+            data["type"] = object_type
+
+        if template is not None:
+            data["template"] = template
+
+        files = {
+            "data": (file_path, file_content)
+        }
+
+        resp = self.conn.http_put_upload(url, data, files)
+        outdata = response_object_or_error(Document, resp, 200)
+        outdata.conn = self.conn
+        outdata.folder_name = folder_name
+        return outdata
 
     @classmethod
-    def list(cls, conn, folder_name):
+    def list(cls, conn, folder_name, page, page_size):
         """ List object(s) of both default("/") and with folder-name """
 
         folder_name = folder_name.lstrip("/")
         if folder_name == "":
-            url = f"{conn.url}/api/objects"
+            url = f"{conn.url}/api/objects?page={page}&page_size={page_size}"
         else:
-            url = f"{conn.url}/api/folders/{folder_name}/objects"
+            url = f"{conn.url}/api/folders/{folder_name}/objects?page={page}&page_size={page_size}"
 
         resp = conn.http_get(url)
         objects = response_object_or_error(Document, resp, 200)
@@ -142,7 +174,7 @@ class Document(Generic):
         )
 
         # Update object name so deletion can be done from the same object after updation.
-        if resp.status == 200 and path is not None:
+        if resp.status_code == 200 and path is not None:
             self.path = path
 
         outdata = response_object_or_error(Document, resp, 200)
@@ -175,7 +207,7 @@ class Document(Generic):
 
         # TODO: Send response in correct way
         # return response_object_or_error("Object", resp, 200)
-        if resp.status != 200:
+        if resp.status_code != 200:
             raise APIError(resp)
         return str(resp.data, 'utf-8')
 
@@ -185,9 +217,9 @@ class Document(Generic):
         return Share.create(self.conn, self.folder_name, self.path, public, use_long_url, password, use_token, disable, revoke, expire, role)
 
 
-    def list_shares(self):
+    def list_shares(self, page=1, page_size=30):
         """ List all Shares within a folder """
-        return Share.list(self.conn, self.folder_name, self.path)
+        return Share.list(self.conn, self.folder_name, self.path, page, page_size)
 
 
     def share(self, share_id):

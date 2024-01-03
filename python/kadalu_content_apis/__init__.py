@@ -3,43 +3,19 @@ from kadalu_content_apis.regions import Region
 from kadalu_content_apis.folders import Folder
 from kadalu_content_apis.objects import Document
 from kadalu_content_apis.templates import Template
-from kadalu_content_apis.helpers import ConnectionBase, APIError, json_from_response
+from kadalu_content_apis.helpers import ConnectionBase, APIError, json_from_response, ExistsError, NotFoundError
+
+DEFAULT_URL = "https://app.kadalu.tech"
 
 class Connection(ConnectionBase):
-    def __init__(self, url, username=None, email=None, password=None, user_id=None, token=None):
+    def __init__(self, username, api_key, url=DEFAULT_URL):
         """Intialise Connection and Login to Kadalu Content API"""
         self.url = url.strip("/")
         super().__init__()
 
-        if username is not None and password is not None:
-            resp = self.http_post(self.url + "/api/api-keys", {"username": username, "password": password})
-
-            # TODO: Send correct error response from API when username/password/etc are wrong
-            # Currently response data seems to be empty.
-            # if resp.status != 201:
-            #     raise APIError(resp)
-
-            resp_json = json_from_response(resp)
-
-            self.user_id = resp_json["user_id"]
-            self.token = resp_json["token"]
-
-        if email is not None and password is not None:
-            resp = self.http_post(self.url + "/api/api-keys", {"email": email, "password": password})
-
-            # TODO: Send correct error response from API when email/password/etc are wrong
-            # Currently response data seems to be empty.
-            # if resp.status != 201:
-            #     raise APIError(resp)
-
-            resp_json = json_from_response(resp)
-
-            self.user_id = resp_json["user_id"]
-            self.token = resp_json["token"]
-
-        if user_id is not None and token is not None:
-            self.user_id = user_id
-            self.token = token
+        if username is not None and api_key is not None:
+            self.username = username
+            self.api_key = api_key
 
 
     @classmethod
@@ -52,7 +28,7 @@ class Connection(ConnectionBase):
         ```
         URL=https://app.kadalu.tech
         API_KEY=bc7889..
-        USER_ID=7
+        USERNAME=aravindavk
         ```
 
         Usage:
@@ -72,9 +48,9 @@ class Connection(ConnectionBase):
                 env_vars[key.strip()] = value.strip()
 
         return Connection(
-            env_vars["URL"],
-            user_id=env_vars["USER_ID"],
-            token=env_vars["API_KEY"]
+            username=env_vars["USERNAME"],
+            api_key=env_vars["API_KEY"],
+            url=env_vars.get("URL", DEFAULT_URL)
         )
 
     def create_region(self, name, address):
@@ -82,33 +58,33 @@ class Connection(ConnectionBase):
         return Region.create(self, name, address)
 
 
-    def create_folder(self, name, region="", immutable=False, version=False, lock=False, template=None):
+    def create_folder(self, name, region="", threads=False, template=None):
         """ Create a new Folder """
-        return Folder.create(self, name, region, immutable, version, lock, template)
+        return Folder.create(self, name, region, threads, template)
 
 
-    def list_folders(self):
+    def list_folders(self, page=1, page_size=30):
         """ Return list of Folders """
-        return Folder.list_folders(self)
+        return Folder.list_folders(self, page, page_size)
 
 
     def folder(self, name):
         return Folder(self, name)
 
 
-    def create_object(self, path, data, object_type, immutable=False, version=False, lock=False, template=None):
+    def create_object(self, path, data, object_type, threads=False, template=None):
         """ Create default("/") object """
-        return Document.create(self, "/", path, data, object_type, immutable, version, lock, template)
+        return Document.create(self, "/", path, data, object_type, threads, template)
 
     # TODO: Add path to `upload_object`
-    def upload_object(self, file_path, object_type, path="", immutable=False, version=False, lock=False, template=None):
+    def upload_object(self, file_path, object_type, path="", threads=False, template=None):
         """ Create default("/") object """
-        return Document.upload(self, "/", file_path, object_type, path, immutable, version, lock, template)
+        return Document.upload_create(self, "/", file_path, object_type, path, threads, template)
 
 
-    def list_objects(self):
+    def list_objects(self, page=1, page_size=30):
         """ List all default("/") objects """
-        return Document.list(self, "/")
+        return Document.list(self, "/", page, page_size)
 
 
     def object(self, path):
@@ -123,12 +99,12 @@ class Connection(ConnectionBase):
 
     def upload_template(self, file_path, template_type, name="", output_type="text", public=False):
         """ Upload Template """
-        return Template.upload(self, file_path, template_type, name, output_type, public)
+        return Template.upload_create(self, file_path, template_type, name, output_type, public)
 
 
-    def list_templates(self):
+    def list_templates(self, page=1, page_size=30):
         """ List all templated """
-        return Template.list_templates(self)
+        return Template.list_templates(self, page, page_size)
 
 
     def template(self, name):
