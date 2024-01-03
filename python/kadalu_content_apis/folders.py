@@ -99,7 +99,7 @@ class Folder(Generic):
 
     def template(self, name):
         """ Return Template instance with folder-name"""
-        return Template(self, self.name, name)
+        return Template(self.conn, self.name, name)
 
     def create_object(self, path, data, object_type, threads=False, template=None):
         """ Create object with folder-name """
