@@ -84,6 +84,21 @@ class Folder(Generic):
         resp = self.conn.http_delete(f"{self.conn.url}/api/folders/{self.name}?recursive={recursive}")
         return response_object_or_error(Folder, resp, 204)
 
+    def create_template(self, name, content, template_type, output_type="text", public=False)
+        """ Create template with folder-name """
+        return Template.create(self, self.name, name, content, template_type, output_type, public)
+
+    def upload_template(self, file_path, template_type, name="", output_type="text", public=False):
+        """ Upload Template with-folder-name"""
+        return Template.upload_create(self, self.name, file_path, template_type, name, output_type, public)
+
+    def list_templates(self, page=1, page_size=30):
+        """ List all templates with folder-name"""
+        return Template.list_templates(self, self.name, page, page_size)
+
+    def template(self, name):
+        """ Return Template instance with folder-name"""
+        return Template(self, self.name, name)
 
     def create_object(self, path, data, object_type, threads=False, template=None):
         """ Create object with folder-name """
