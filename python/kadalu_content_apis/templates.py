@@ -77,7 +77,7 @@ class Template(Generic):
 
         return outdata
 
-    def upload(self, folder_name, file_path, template_type=None, name=None, output_type=None, public=None):
+    def upload(self, file_path, template_type=None, name=None, output_type=None, public=None):
         folder_name = self.folder_name.lstrip("/")
         if folder_name == "":
             url = f"{self.conn.url}/api/templates/{self.name}"
