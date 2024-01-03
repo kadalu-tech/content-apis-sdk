@@ -95,7 +95,7 @@ class Folder(Generic):
 
     def list_templates(self, page=1, page_size=30):
         """ List all templates with folder-name"""
-        return Template.list_templates(self, self.name, page, page_size)
+        return Template.list_templates(self.conn, self.name, page, page_size)
 
     def template(self, name):
         """ Return Template instance with folder-name"""
