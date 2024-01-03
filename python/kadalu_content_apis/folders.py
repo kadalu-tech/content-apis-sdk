@@ -1,6 +1,7 @@
 from kadalu_content_apis.helpers import response_object_or_error, Generic
 from kadalu_content_apis.objects import Document
 from kadalu_content_apis.shares import Share
+from kadalu_content_apis.templates import Template
 
 class Folder(Generic):
     def __init__(self, conn=None, name=None, data={}):
