@@ -78,6 +78,11 @@ class Template(Generic):
         return outdata
 
     def upload(self, folder_name, file_path, template_type=None, name=None, output_type=None, public=None):
+        folder_name = self.folder_name.lstrip("/")
+        if folder_name == "":
+            url = f"{self.conn.url}/api/templates/{self.name}"
+        else:
+            url = f"{self.conn.url}/api/folders/{self.folder_name}/templates/{self.name}"
 
         file_content = ""
         with open(file_path, 'rb') as file:
@@ -105,7 +110,7 @@ class Template(Generic):
             "content": (file_path, file_content)
         }
 
-        resp = self.conn.http_put_upload(f"{self.conn.url}/api/templates/{self.name}", data, files)
+        resp = self.conn.http_put_upload(url, data, files)
         outdata = response_object_or_error(Template, resp, 200)
         outdata.conn = self.conn
 
