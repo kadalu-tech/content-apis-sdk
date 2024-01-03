@@ -3,23 +3,32 @@ import json
 from kadalu_content_apis.helpers import response_object_or_error, Generic
 
 class Template(Generic):
-    def __init__(self, conn=None, name=None, data={}):
+    def __init__(self, conn=None, folder_name=None, name=None, data={}):
         """ Intialise Template """
         super().__init__(data)
 
         if conn is not None:
             self.conn = conn
 
+        if folder_name is not None:
+            self.folder_name = folder_name
+
         if name is not None:
             self.name = name
 
     # TODO: Handle Invalid Region Name, when only name is passed.
     @classmethod
-    def create(cls, conn, name, content, template_type, output_type, public):
+    def create(cls, conn, folder_name, name, content, template_type, output_type, public):
         """ Create template """
 
+        folder_name = folder_name.lstrip("/")
+        if folder_name == "":
+            url = f"{conn.url}/api/templates"
+        else:
+            url = f"{conn.url}/api/folders/{folder_name}/templates"
+
         resp = conn.http_post(
-            f"{conn.url}/api/templates",
+            url,
             {
                 "name" : name,
                 "content": content,
@@ -35,7 +44,13 @@ class Template(Generic):
         return outdata
 
     @classmethod
-    def upload_create(cls, conn, file_path, template_type, name, output_type, public):
+    def upload_create(cls, conn, folder_name, file_path, template_type, name, output_type, public):
+
+        folder_name = folder_name.lstrip("/")
+        if folder_name == "":
+            url = f"{conn.url}/api/templates"
+        else:
+            url = f"{conn.url}/api/folders/{folder_name}/templates"
 
         file_content = ""
         with open(file_path, 'rb') as file:
@@ -56,13 +71,13 @@ class Template(Generic):
             "content": (file_path, file_content)
         }
 
-        resp = conn.http_post_upload(f"{conn.url}/api/templates", data, files)
+        resp = conn.http_post_upload(url, data, files)
         outdata = response_object_or_error(Template, resp, 201)
         outdata.conn = conn
 
         return outdata
 
-    def upload(self, file_path, template_type=None, name=None, output_type=None, public=None):
+    def upload(self, folder_name, file_path, template_type=None, name=None, output_type=None, public=None):
 
         file_content = ""
         with open(file_path, 'rb') as file:
@@ -97,12 +112,16 @@ class Template(Generic):
         return outdata
 
     @classmethod
-    def list_templates(cls, conn, page, page_size):
+    def list_templates(cls, conn, folder_name, page, page_size):
         """ List all templates """
 
-        resp = conn.http_get(
-            f"{conn.url}/api/templates?page={page}&page_size={page_size}"
-        )
+        folder_name = folder_name.lstrip("/")
+        if folder_name == "":
+            url = f"{conn.url}/api/templates"
+        else:
+            url = f"{conn.url}/api/folders/{folder_name}/templates"
+
+        resp = conn.http_get(url)
         templates = response_object_or_error(Template, resp, 200)
 
         def update_data(tmpl):
@@ -115,9 +134,13 @@ class Template(Generic):
     def get(self):
         """ Return a Template """
 
-        resp = self.conn.http_get(
-            f"{self.conn.url}/api/templates/{self.name}"
-        )
+        folder_name = self.folder_name.lstrip("/")
+        if folder_name == "":
+            url = f"{self.conn.url}/api/templates/{self.name}"
+        else:
+            url = f"{self.conn.url}/api/folders/{self.folder_name}/templates/{self.name}"
+
+        resp = self.conn.http_get(url)
         outdata = response_object_or_error(Template, resp, 200)
         outdata.conn = self.conn
 
@@ -127,8 +150,14 @@ class Template(Generic):
     def update(self, name=None, content=None, template_type=None, output_type=None, public=None):
         """ Update Template """
 
+        folder_name = self.folder_name.lstrip("/")
+        if folder_name == "":
+            url = f"{self.conn.url}/api/templates/{self.name}"
+        else:
+            url = f"{self.conn.url}/api/folders/{self.folder_name}/templates/{self.name}"
+
         resp = self.conn.http_put(
-            f"{self.conn.url}/api/templates/{self.name}",
+            url,
             {
                 "name" : name,
                 "content": content,
@@ -150,5 +179,12 @@ class Template(Generic):
 
     def delete(self):
         """ Delete Template """
-        resp = self.conn.http_delete(f"{self.conn.url}/api/templates/{self.name}")
+
+        folder_name = self.folder_name.lstrip("/")
+        if self.folder_name == "":
+            url = f"{self.conn.url}/api/templates/{self.name}"
+        else:
+            url = f"{self.conn.url}/api/folders/{folder_name}/templates/{self.name}"
+
+        resp = self.conn.http_delete(url)
         return response_object_or_error(Template, resp, 204)

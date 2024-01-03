@@ -94,19 +94,19 @@ class Connection(ConnectionBase):
 
     def create_template(self, name, content, template_type, output_type="text", public=False):
         """ Create Template """
-        return Template.create(self, name, content, template_type, output_type, public)
+        return Template.create(self, "/", name, content, template_type, output_type, public)
 
 
     def upload_template(self, file_path, template_type, name="", output_type="text", public=False):
         """ Upload Template """
-        return Template.upload_create(self, file_path, template_type, name, output_type, public)
+        return Template.upload_create(self, "/", file_path, template_type, name, output_type, public)
 
 
     def list_templates(self, page=1, page_size=30):
         """ List all templated """
-        return Template.list_templates(self, page, page_size)
+        return Template.list_templates(self, "/", page, page_size)
 
 
     def template(self, name):
         """ Return Template instance """
-        return Template(self, name)
+        return Template(self, "/", name)
