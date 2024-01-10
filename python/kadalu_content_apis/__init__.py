@@ -1,7 +1,7 @@
 # noqa # pylint: disable=missing-module-docstring
 from kadalu_content_apis.regions import Region
 from kadalu_content_apis.folders import Folder
-from kadalu_content_apis.objects import Document
+from kadalu_content_apis.objects import Document, DocumentThread
 from kadalu_content_apis.templates import Template
 from kadalu_content_apis.helpers import ConnectionBase, APIError, json_from_response, ExistsError, NotFoundError
 
@@ -110,3 +110,7 @@ class Connection(ConnectionBase):
     def template(self, name):
         """ Return Template instance """
         return Template(self, "/", name)
+
+
+    def thread(self, thread_id):
+        return DocumentThread(self, thread_id)

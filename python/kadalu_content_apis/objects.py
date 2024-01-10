@@ -225,3 +225,33 @@ class Document(Generic):
     def share(self, share_id):
         """ Return a Share instance """
         return Share(self.conn, self.folder_name, self.path, share_id)
+
+
+class DocumentThread(Generic):
+    def __init__(self, conn=None, thread_id=None, data={}):
+        """ Intialise DocumentThread/Object """
+        super().__init__(data)
+        if conn is not None:
+            self.conn = conn
+        if thread_id is not None:
+            self.thread_id = thread_id
+
+    def update(self, thread_type=None, meta=None, data=None):
+        url = f"{self.conn.url}/api/threads/{self.thread_id}"
+
+        resp = self.conn.http_put(
+            url,
+            {
+                "data": data,
+                "meta": meta,
+                "type": thread_type
+            }
+        )
+        outdata = response_object_or_error(DocumentThread, resp, 200)
+        outdata.conn = self.conn
+        return outdata
+
+    def delete(self):
+        url = f"{self.conn.url}/api/threads/{self.thread_id}"
+        resp = self.conn.http_delete(url)
+        return response_object_or_error(DocumentThread, resp, 204)
