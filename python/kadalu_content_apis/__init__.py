@@ -74,22 +74,22 @@ class Connection(ConnectionBase):
 
     def create_object(self, path, data, object_type, threads=False, template=None):
         """ Create default("/") object """
-        return Document.create(self, "/", path, data, object_type, threads, template)
+        return Document.create(self, "/default", path, data, object_type, threads, template)
 
     # TODO: Add path to `upload_object`
     def upload_object(self, file_path, object_type, path="", threads=False, template=None):
         """ Create default("/") object """
-        return Document.upload_create(self, "/", file_path, object_type, path, threads, template)
+        return Document.upload_create(self, "/default", file_path, object_type, path, threads, template)
 
 
     def list_objects(self, page=1, page_size=30):
         """ List all default("/") objects """
-        return Document.list(self, "/", page, page_size)
+        return Document.list(self, "/default", page, page_size)
 
 
     def object(self, path):
         """ Return Object/Document instance """
-        return Document(self, "/", path)
+        return Document(self, "/default", path)
 
 
     def create_template(self, name, content, template_type, output_type="text", public=False):
