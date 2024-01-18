@@ -22,10 +22,7 @@ class Template(Generic):
         """ Create template """
 
         folder_name = folder_name.lstrip("/")
-        if folder_name == "":
-            url = f"{conn.url}/api/templates"
-        else:
-            url = f"{conn.url}/api/folders/{folder_name}/templates"
+        url = f"{conn.url}/api/templates/{folder_name}"
 
         resp = conn.http_post(
             url,
@@ -47,10 +44,7 @@ class Template(Generic):
     def upload_create(cls, conn, folder_name, file_path, template_type, name, output_type, public):
 
         folder_name = folder_name.lstrip("/")
-        if folder_name == "":
-            url = f"{conn.url}/api/templates"
-        else:
-            url = f"{conn.url}/api/folders/{folder_name}/templates"
+        url = f"{conn.url}/api/templates/{folder_name}"
 
         file_content = ""
         with open(file_path, 'rb') as file:
@@ -79,10 +73,7 @@ class Template(Generic):
 
     def upload(self, file_path, template_type=None, name=None, output_type=None, public=None):
         folder_name = self.folder_name.lstrip("/")
-        if folder_name == "":
-            url = f"{self.conn.url}/api/templates/{self.name}"
-        else:
-            url = f"{self.conn.url}/api/folders/{self.folder_name}/templates/{self.name}"
+        url = f"{conn.url}/api/templates/{folder_name}"
 
         file_content = ""
         with open(file_path, 'rb') as file:
@@ -121,10 +112,7 @@ class Template(Generic):
         """ List all templates """
 
         folder_name = folder_name.lstrip("/")
-        if folder_name == "":
-            url = f"{conn.url}/api/templates"
-        else:
-            url = f"{conn.url}/api/folders/{folder_name}/templates"
+        url = f"{conn.url}/api/templates/{folder_name}"
 
         resp = conn.http_get(url)
         templates = response_object_or_error(Template, resp, 200)
@@ -140,10 +128,7 @@ class Template(Generic):
         """ Return a Template """
 
         folder_name = self.folder_name.lstrip("/")
-        if folder_name == "":
-            url = f"{self.conn.url}/api/templates/{self.name}"
-        else:
-            url = f"{self.conn.url}/api/folders/{self.folder_name}/templates/{self.name}"
+        url = f"{self.conn.url}/api/templates/{self.folder_name}/{self.name}"
 
         resp = self.conn.http_get(url)
         outdata = response_object_or_error(Template, resp, 200)
@@ -156,10 +141,7 @@ class Template(Generic):
         """ Update Template """
 
         folder_name = self.folder_name.lstrip("/")
-        if folder_name == "":
-            url = f"{self.conn.url}/api/templates/{self.name}"
-        else:
-            url = f"{self.conn.url}/api/folders/{self.folder_name}/templates/{self.name}"
+        url = f"{self.conn.url}/api/templates/{folder_name}/{self.name}"
 
         resp = self.conn.http_put(
             url,
@@ -173,7 +155,7 @@ class Template(Generic):
         )
 
         # Update object name so deletion can be done from the same object after updation.
-        if resp.status == 200 and name is not None:
+        if resp.status_code == 200 and name is not None:
             self.name = name
 
         outdata = response_object_or_error(Template, resp, 200)
@@ -186,10 +168,7 @@ class Template(Generic):
         """ Delete Template """
 
         folder_name = self.folder_name.lstrip("/")
-        if self.folder_name == "":
-            url = f"{self.conn.url}/api/templates/{self.name}"
-        else:
-            url = f"{self.conn.url}/api/folders/{folder_name}/templates/{self.name}"
+        url = f"{self.conn.url}/api/templates/{folder_name}/{self.name}"
 
         resp = self.conn.http_delete(url)
         return response_object_or_error(Template, resp, 204)

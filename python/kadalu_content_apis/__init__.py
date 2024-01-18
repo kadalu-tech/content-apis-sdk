@@ -58,9 +58,9 @@ class Connection(ConnectionBase):
         return Region.create(self, name, address)
 
 
-    def create_folder(self, name, region="", threads=False, template=None):
+    def create_folder(self, name, region="", threads=False):
         """ Create a new Folder """
-        return Folder.create(self, name, region, threads, template)
+        return Folder.create(self, name, region, threads)
 
 
     def list_folders(self, page=1, page_size=30):
@@ -71,46 +71,9 @@ class Connection(ConnectionBase):
     def folder(self, name):
         return Folder(self, name)
 
-
-    def create_object(self, path, data, object_type, threads=False, template=None):
-        """ Create default("/") object """
-        return Document.create(self, "/default", path, data, object_type, threads, template)
-
-    # TODO: Add path to `upload_object`
-    def upload_object(self, file_path, object_type, path="", threads=False, template=None):
-        """ Create default("/") object """
-        return Document.upload_create(self, "/default", file_path, object_type, path, threads, template)
-
-
-    def list_objects(self, page=1, page_size=30):
-        """ List all default("/") objects """
-        return Document.list(self, "/default", page, page_size)
-
-
-    def object(self, path):
-        """ Return Object/Document instance """
-        return Document(self, "/default", path)
-
-
-    def create_template(self, name, content, template_type, output_type="text", public=False):
-        """ Create Template """
-        return Template.create(self, "/", name, content, template_type, output_type, public)
-
-
-    def upload_template(self, file_path, template_type, name="", output_type="text", public=False):
-        """ Upload Template """
-        return Template.upload_create(self, "/", file_path, template_type, name, output_type, public)
-
-
-    def list_templates(self, page=1, page_size=30):
-        """ List all templated """
-        return Template.list_templates(self, "/", page, page_size)
-
-
-    def template(self, name):
-        """ Return Template instance """
-        return Template(self, "/", name)
-
+    @property
+    def default_folder(self):
+        return Folder(self, "/default")
 
     def thread(self, thread_id):
         return DocumentThread(self, thread_id)

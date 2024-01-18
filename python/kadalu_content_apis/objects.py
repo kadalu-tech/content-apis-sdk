@@ -16,7 +16,7 @@ class Document(Generic):
             self.folder_name = folder_name
 
         if path is not None:
-            self.path = path
+            self.path = path.lstrip("/")
 
 
     @classmethod
@@ -128,7 +128,6 @@ class Document(Generic):
         """ Return object of both default("/") and with folder-name """
 
         folder_name = self.folder_name.lstrip("/")
-        print(self.path)
         url = f"{self.conn.url}/api/objects/{folder_name}/{self.path}"
 
         resp = self.conn.http_get(url)
@@ -144,7 +143,6 @@ class Document(Generic):
         """ Update object of both default("/") and with folder-name """
 
         folder_name = self.folder_name.lstrip("/")
-        print(self.path)
         url = f"{self.conn.url}/api/objects/{folder_name}/{self.path}"
 
         resp = self.conn.http_put(

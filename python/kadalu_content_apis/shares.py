@@ -9,7 +9,7 @@ class Share(Generic):
             self.conn = conn
 
         if folder_name is not None:
-            self.folder_name = folder_name
+            self.folder_name = folder_name.lstrip("/")
 
         if path is not None:
             self.path = path
@@ -22,12 +22,9 @@ class Share(Generic):
         """ Create Share Instance """
 
         if path == "":
-            url = f"{conn.url}/api/shares/folders/{folder_name}"
+            url = f"{conn.url}/api/shares/{folder_name}"
         else:
-            url = f"{conn.url}/api/shares/folders/{folder_name}/objects/{path}"
-
-        if folder_name == "/" and path != "":
-            url = f"{conn.url}/api/shares/objects/{path}"
+            url = f"{conn.url}/api/shares/{folder_name}/{path}"
 
         resp = conn.http_post(
             url,
@@ -54,12 +51,9 @@ class Share(Generic):
         """ List share(s) of both default("/") and with folder-name """
 
         if path == "":
-            url = f"{conn.url}/api/shares/folders/{folder_name}?page={page}&page_size={page_size}"
+            url = f"{conn.url}/api/shares/{folder_name}?page={page}&page_size={page_size}"
         else:
-            url = f"{conn.url}/api/shares/folders/{folder_name}/objects/{path}?page={page}&page_size={page_size}"
-
-        if folder_name == "/" and path != "":
-            url = f"{conn.url}/api/shares/objects/{path}?page={page}&page_size={page_size}"
+            url = f"{conn.url}/api/shares/{folder_name}/{path}?page={page}&page_size={page_size}"
 
         resp = conn.http_get(url)
         shares = response_object_or_error(Share, resp, 200)
