@@ -12,11 +12,11 @@ class Folder(Generic):
             self.conn = conn
 
         if name is not None:
-            self.name = name
+            self.name = name.lstrip("/")
 
     # TODO: Handle Invalid Region Name, when only name is passed.
     @classmethod
-    def create(cls, conn, name, region, threads, template):
+    def create(cls, conn, name, region, threads):
         """ Create folder """
 
         resp = conn.http_post(
@@ -24,8 +24,7 @@ class Folder(Generic):
             {
                 "name" : name,
                 "region": region,
-                "threads": threads,
-                "template": template
+                "threads": threads
             }
         )
         outdata = response_object_or_error(Folder, resp, 201)
