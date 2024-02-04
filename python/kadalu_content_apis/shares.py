@@ -18,7 +18,7 @@ class Share(Generic):
             self.id = share_id
 
     @classmethod
-    def create(cls, conn, folder_name, path, public, use_long_url, password, use_token, disable, revoke, expire, role):
+    def create(cls, conn, folder_name, path, public, use_long_url, password, use_token, disable, role):
         """ Create Share Instance """
 
         if path == "":
@@ -34,8 +34,6 @@ class Share(Generic):
                 "password": password,
                 "use_token": use_token,
                 "disable": disable,
-                "revoke": revoke,
-                "expire": expire,
                 "role": role
             }
         )
@@ -67,7 +65,7 @@ class Share(Generic):
 
         return list(map(update_data, shares))
 
-    def update(self, disable=False, revoke=False, expire=False):
+    def update(self, disable=False):
         """ Update share options """
 
         url = f"{self.conn.url}/api/shares/{self.id}"
@@ -75,9 +73,7 @@ class Share(Generic):
         resp = self.conn.http_put(
             url,
             {
-                "disable": disable,
-                "revoke": revoke,
-                "expire": expire
+                "disable": disable
             }
         )
         outdata = response_object_or_error(Share, resp, 200)
